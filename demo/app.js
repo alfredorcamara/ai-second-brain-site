@@ -8775,7 +8775,7 @@ function applyTopicPreset(topicText) {
 }
 
 /**
- * Aciona o refinamento de prompt com IA conectada ao projeto.
+ * Aciona o refinamento de prompt com IA Conectada ao Projeto
  */
 async function triggerAiRefinePrompt() {
     const topic = (document.getElementById('rlTopicInput')?.value || '').trim();
