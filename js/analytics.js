@@ -128,6 +128,7 @@
             if (ghLink.closest('.nav')) location = 'navbar';
             else if (ghLink.closest('.hero-content')) location = 'hero_cta';
             else if (ghLink.closest('.hero-version-pill')) location = 'hero_version_pill';
+            else if (ghLink.closest('.star-callout')) location = 'quickstart_star_callout';
             else if (ghLink.closest('.sec.final')) location = 'footer_final_cta';
             else if (ghLink.closest('.creator-card') || ghLink.closest('.contact-private')) location = 'creator_profile';
             else if (ghLink.closest('footer')) location = 'footer_link';
