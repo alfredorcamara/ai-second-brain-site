@@ -17,8 +17,16 @@
         if (en) { const k = norm(n.nodeValue); if (!k) return; if (D[k]) { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = D[k].replace(/<[^>]+>/g, ''); } else missing.add(k); }
         else if (orig.has(n)) { n.nodeValue = orig.get(n); orig.delete(n); }
     }
+    const DIAG_RE = /^(.*assets\/diagrams\/(?:hub-satellites-architecture|ai-decision-routing|research-two-layers|session-lifecycle-loop))(-eng)?(\.svg(?:\?.*)?)$/i;
     function walk(el, en) {
         if (SKIP.has(el.tagName.toUpperCase()) || el.hasAttribute('data-no-i18n')) return;
+        if (el.tagName.toUpperCase() === 'IMG' && el.hasAttribute('src')) {
+            const s = el.getAttribute('src'), m = s.match(DIAG_RE);
+            if (m) {
+                if (en && !m[2]) { el.setAttribute('data-o-src', s); el.setAttribute('src', `${m[1]}-eng${m[3]}`); }
+                else if (!en) { if (el.hasAttribute('data-o-src')) { el.setAttribute('src', el.getAttribute('data-o-src')); el.removeAttribute('data-o-src'); } else if (m[2]) el.setAttribute('src', `${m[1]}${m[3]}`); }
+            }
+        }
         for (const a of ['title', 'aria-label', 'alt', 'placeholder']) if (el.hasAttribute(a)) {
             const attr = 'data-o-' + a;
             if (en) { const v = norm(el.getAttribute(a)); if (D[v]) { el.setAttribute(attr, el.getAttribute(a)); el.setAttribute(a, D[v].replace(/<[^>]+>/g, '')); } }
@@ -29,6 +37,19 @@
         if (en) { if (D[k]) { if (!orig.has(el)) orig.set(el, el.innerHTML); el.innerHTML = D[k]; } else missing.add(k); }
         else if (orig.has(el)) { el.innerHTML = orig.get(el); orig.delete(el); }
     }
+    function updateToggleUi(target) {
+        const b = document.getElementById('lang-btn');
+        if (!b) return;
+        const ptOpt = b.querySelector('[data-lang-opt="pt"]');
+        const enOpt = b.querySelector('[data-lang-opt="en"]');
+        if (ptOpt && enOpt) {
+            ptOpt.classList.toggle('active', target === 'pt');
+            enOpt.classList.toggle('active', target === 'en');
+        } else {
+            b.textContent = target === 'en' ? 'PT' : 'EN';
+        }
+        b.setAttribute('data-active-lang', target);
+    }
     function set(l, silent) {
         const en = l === 'en'; if (l === lang && !silent) return; lang = en ? 'en' : 'pt';
         try { localStorage.setItem(KEY, lang); } catch (_) { }
@@ -37,12 +58,25 @@
         if (en) { t.dataset.o = t.dataset.o || t.textContent; t.textContent = D[norm(t.dataset.o)] || t.dataset.o; } else if (t.dataset.o) t.textContent = t.dataset.o;
         const m = document.querySelector('meta[name="description"]'); if (m) { m.dataset.o = m.dataset.o || m.content; m.content = en ? 'Persistent Markdown memory for AI agents, with an interactive 3D neural graph. Source-available, agnostic, no lock-in.' : m.dataset.o; }
         walk(document.body, en);
-        const b = document.getElementById('lang-btn'); if (b) b.textContent = en ? 'PT' : 'EN';
+        updateToggleUi(lang);
         window.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
     }
     const q = new URLSearchParams(location.search).get('lang'); let saved = null; try { saved = localStorage.getItem(KEY); } catch (_) { }
     const initial = q === 'en' || q === 'pt' ? q : saved || ((navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en');
-    window.I18N = { set, get lang() { return lang; }, missing: () => [...missing] };
-    document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lang-btn')) set(lang === 'en' ? 'pt' : 'en'); });
+    window.I18N = { set, toggle: () => set(lang === 'en' ? 'pt' : 'en'), get lang() { return lang; }, missing: () => [...missing] };
+    document.addEventListener('click', e => {
+        const btn = e.target.closest && e.target.closest('#lang-btn');
+        if (!btn) return;
+        const opt = e.target.closest('[data-lang-opt]');
+        if (opt) {
+            const clickedLang = opt.getAttribute('data-lang-opt');
+            if (clickedLang && clickedLang !== lang) {
+                set(clickedLang);
+                return;
+            }
+        }
+        set(lang === 'en' ? 'pt' : 'en');
+    });
     if (initial === 'en') set('en', true);
+    else updateToggleUi('pt');
 })();

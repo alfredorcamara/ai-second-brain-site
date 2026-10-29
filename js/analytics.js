@@ -230,8 +230,9 @@
         // G. Troca de Idioma
         const langBtn = e.target.closest('#lang-btn');
         if (langBtn) {
+            const currentLang = (window.I18N && window.I18N.lang) || langBtn.getAttribute('data-active-lang') || 'pt';
             window.trackBrainEvent('language_toggle', {
-                target_lang: langBtn.textContent.trim().toLowerCase()
+                target_lang: currentLang === 'en' ? 'pt' : 'en'
             });
             return;
         }
