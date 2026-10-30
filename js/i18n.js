@@ -7,9 +7,9 @@
     const norm = s => s.replace(/\s+/g, ' ').trim();
     const keyOf = el => { const c = el.cloneNode(true); c.querySelectorAll('br').forEach(b => b.replaceWith(' ')); return norm(c.textContent); };
     const hasText = el => [...el.childNodes].some(n => n.nodeType === 3 && n.nodeValue.trim());
-    // folha = só filhos "inline"; spans soltos (sem texto direto) são tratados um a um
+    // folha = só filhos "inline"; spans ou links soltos (sem texto direto) são tratados um a um
     const inl = c => INLINE.has(c.tagName.toUpperCase()) && !(c.tagName === 'A' && c.classList.contains('btn'));
-    const isLeaf = el => { const k = [...el.children]; return k.every(inl) && (!k.some(c => c.tagName === 'SPAN') || hasText(el)); };
+    const isLeaf = el => { const k = [...el.children]; return k.every(inl) && (!k.some(c => c.tagName === 'SPAN' || c.tagName === 'A') || hasText(el)); };
     const orig = new WeakMap(), missing = new Set();
     let lang = 'pt';
 

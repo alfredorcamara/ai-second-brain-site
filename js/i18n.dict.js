@@ -361,5 +361,8 @@ window.I18N_EN = {
  "Já dei ⭐": "Already Starred ⭐",
  "Depois": "Later",
  "Fechar (lembrar mais tarde)": "Close (remind later)",
- "Apoiar com estrela no GitHub": "Support with a star on GitHub"
+ "Apoiar com estrela no GitHub": "Support with a star on GitHub",
+
+ // --- Footer Links Combined Fallback ---
+ "Demo Issues Discussões FAQ Contato Criador: Alfredo R. Câmara": "<a href=\"demo/index.html\">Demo</a><a href=\"https://github.com/alfredorcamara/ai-second-brain/issues\" target=\"_blank\" rel=\"noopener\">Issues</a><a href=\"https://github.com/alfredorcamara/ai-second-brain/discussions\" target=\"_blank\" rel=\"noopener\">Discussions</a><a href=\"#faq\">FAQ</a><a href=\"#contato\">Contact</a><a href=\"https://github.com/alfredorcamara\" target=\"_blank\" rel=\"noopener\">Creator: Alfredo R. Câmara</a>"
 };
