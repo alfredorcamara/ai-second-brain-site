@@ -342,5 +342,24 @@ window.I18N_EN = {
  "Neurônios & Sinapses 3D": "Neurons & 3D Synapses",
  "Neurônios &amp; Sinapses 3D": "Neurons & 3D Synapses",
  "100% Offline / Privado": "100% Offline / Private",
- "Busca Determinística": "Deterministic Search"
+ "Busca Determinística": "Deterministic Search",
+
+ // --- Star Engagement Callout & Terminal ---
+ "Vai clonar para testar?": "Cloning to try it out?",
+ "Deixe uma estrela no repositório antes de sair. Fortalece o projeto open source e leva só 2 segundos!": "Leave a <strong>star on the repository</strong> before you go. It supports the open source project and takes only 2 seconds!",
+ "⭐ Dar Star": "⭐ Star on GitHub",
+ "⭐ Dar Star ↗": "⭐ Star on GitHub ↗",
+ "Dar Star": "Star on GitHub",
+ "Deixe sua estrela no repositório": "Leave your star on the repository",
+ "⭐ Star no GitHub": "⭐ Star on GitHub",
+ "# ou clique em start-brain.bat": "# or double-click start-brain.bat",
+
+ // --- Star Feedback Toast (Cockpit & Demo) ---
+ "O Second Brain te ajudou?": "Did Second Brain help you?",
+ "Sou dev solo e cada estrela no GitHub ajuda muito o projeto a crescer e alcançar mais desenvolvedores.": "I am a solo dev and every star on GitHub genuinely helps the project grow and reach more developers.",
+ "⭐ Dar Estrela": "⭐ Star on GitHub",
+ "Já dei ⭐": "Already Starred ⭐",
+ "Depois": "Later",
+ "Fechar (lembrar mais tarde)": "Close (remind later)",
+ "Apoiar com estrela no GitHub": "Support with a star on GitHub"
 };
