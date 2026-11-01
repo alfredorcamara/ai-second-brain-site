@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI research that resumes where it left off and never spends tokens twice — AI Second Brain</title>
+  <meta name="description"
+    content="How to design long-running automated research workflows and AI pipelines that fail gracefully, respect rate limits, and never pay twice for the same token.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/resilient-ai-research-resuming-jobs.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/pesquisa-com-ia-que-retoma-de-onde-parou.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/resilient-ai-research-resuming-jobs.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="AI research that resumes where it left off and never spends tokens twice">
+  <meta property="og:description"
+    content="How to design long-running automated research workflows and AI pipelines that fail gracefully, respect rate limits, and never pay twice for the same token.">
+  <meta property="og:image" content="../assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI research that resumes where it left off and never spends tokens twice">
+  <meta name="twitter:description"
+    content="How to design long-running automated research workflows and AI pipelines that fail gracefully, respect rate limits, and never pay twice for the same token.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Particle Canvas Background ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Title Gold Accent ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Action Row ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Typography & Headings ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Grids & Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── SVG Diagrams ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .tk {
+      opacity: 0;
+    }
+
+    .dg.in .tk {
+      animation: popLine 0.4s forwards;
+      animation-delay: calc(var(--i) * 0.15s);
+    }
+
+    /* ── Code Blocks ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 18px 22px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0 10px;
+    }
+
+    .code .tl {
+      display: block;
+      opacity: 0;
+      white-space: pre;
+    }
+
+    .code.in .tl {
+      animation: popLine 0.4s forwards;
+      animation-delay: calc(var(--i) * 0.45s);
+    }
+
+    @keyframes popLine {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Gold Check List ── */
+    .article-body ul.ck,
+    ul.ck {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .article-body ul.ck li,
+    ul.ck li {
+      padding: 10px 0 10px 32px;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: #d1d5db;
+    }
+
+    .article-body ul.ck li:before,
+    ul.ck li:before {
+      content: "✓";
+      position: absolute;
+      left: 6px;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    /* ── Dynamic Stats Counters ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Blockquote ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 12px 0 12px 22px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Article CTA Box ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans) !important;
+      font-size: 25px !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      margin: 0 0 14px 0 !important;
+      text-align: center !important;
+      width: 100% !important;
+      letter-spacing: -0.01em;
+    }
+
+    .article-cta-box .cta-desc {
+      color: #aab6d3;
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 660px;
+      margin: 0 auto 28px auto;
+      font-family: var(--font-sans);
+      text-align: center;
+    }
+
+    .article-cta-box .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+    .article-cta-box .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 14.5px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .article-cta-box .cta-btn.primary {
+      background: var(--gold);
+      color: #03060f;
+      box-shadow: 0 4px 16px rgba(255, 199, 107, 0.3);
+    }
+
+    .article-cta-box .cta-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 199, 107, 0.45);
+    }
+
+    .article-cta-box .cta-btn.secondary {
+      background: rgba(13, 20, 38, 0.85);
+      color: #fff;
+      border: 1px solid #3b4a72;
+    }
+
+    .article-cta-box .cta-btn.secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .tl, .dg .tk {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Switch language / Alternar idioma (EN ⇄ PT)"
+        aria-label="Switch language / Alternar idioma" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Particle Canvas Background ── -->
+  <div class="canvas-bg-wrapper" aria-hidden="true">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Article Container ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../../index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Cost &amp; Resilience</span>
+      </nav>
+
+      <!-- Article Header -->
+      <header class="article-header">
+        <span class="article-badge">Cost &amp; Resilience · 5 min read</span>
+        <h1 class="article-title">AI research that <em>resumes where it left off</em> and never spends tokens twice.</h1>
+        <p class="article-lead">
+          How to design long-running automated research workflows and AI pipelines that fail gracefully, respect rate limits, and never throw money away on blind retries.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Creator of AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 October 08, 2026</span>
+            <span>·</span>
+            <span>⚡ Research Lab &amp; Software Engineering</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Top Action Row -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button>
+      </div>
+
+      <!-- Article Body -->
+      <div class="article-body" id="art">
+
+        <p class="rv">
+          Extensive research workflows powered by AI inevitably fail mid-run. Sometimes due to vendor tokens-per-minute (TPM) ceilings, sometimes transient network hiccups, sometimes because a laptop lid was closed prematurely. If your system was not architected for this reality, the consequence is painful and expensive: you re-run everything and pay twice for tokens already computed. In AI Second Brain, our Research Lab engine is built upon a fundamental engineering rule: <b>fail slowly, without losing what has already been accomplished</b>.
+        </p>
+
+        <h2 class="rv"><span class="n">01 · WHY WORKFLOWS FAIL</span>Three common culprits</h2>
+        <div class="grid">
+          <div class="card rv">
+            <b>Rate Limit Throttling</b>
+            AI providers enforce strict tokens-per-minute (TPM) ceilings. Under free or starter tiers, rapid sequential calls trigger rate limiting almost instantly.
+          </div>
+          <div class="card rv">
+            <b>Network &amp; API Flakiness</b>
+            Transient errors such as HTTP 429 and 500 from upstream inference endpoints, or momentary Wi-Fi interruptions, abruptly kill naive execution scripts.
+          </div>
+          <div class="card rv">
+            <b>Human Interruption</b>
+            Cancelled terminal commands, closed laptops, sleep mode, or page refreshes. The process stops, but previously generated assets must remain intact.
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">02 · PRINCIPLE 1</span>The filesystem is the execution memory</h2>
+        <p class="rv">
+          Every research job creates real, structured Markdown files partitioned into <code>knowledge/</code> and <code>actionable/</code> directly within your local project directory. This on-disk state acts as the <em>single source of truth</em>: when restarting an interrupted pipeline, the engine inspects existing files and immediately skips already-generated chapters, burning exactly zero tokens on previously finished work.
+        </p>
+
+        <!-- SVG Diagram: Execution Resilience -->
+        <div class="dg rv">
+          <svg viewBox="0 0 700 235" role="img" aria-label="Illustrative scenario: second execution preserves already-generated files">
+            <text x="10" y="58" fill="#e8ecf5" font-size="14" font-weight="600">1st execution</text>
+            <text x="10" y="148" fill="#e8ecf5" font-size="14" font-weight="600">2nd execution</text>
+            
+            <!-- 1st run: 8 successful, 1 failure, 3 pending -->
+            <rect class="tk" style="--i:0" x="150" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:1" x="195" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:2" x="240" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:3" x="285" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:4" x="330" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:5" x="375" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:6" x="420" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:7" x="465" y="40" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:8" x="510" y="40" width="34" height="34" rx="6" fill="#e5534b"/>
+            <rect x="555" y="40" width="34" height="34" rx="6" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <rect x="600" y="40" width="34" height="34" rx="6" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <rect x="645" y="40" width="34" height="34" rx="6" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            
+            <!-- 2nd run: 8 preserved (blue), 4 newly generated (green) -->
+            <rect class="tk" style="--i:9" x="150" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:10" x="195" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:11" x="240" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:12" x="285" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:13" x="330" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:14" x="375" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:15" x="420" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:16" x="465" y="130" width="34" height="34" rx="6" fill="#4da3ff"/>
+            <rect class="tk" style="--i:17" x="510" y="130" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:18" x="555" y="130" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:19" x="600" y="130" width="34" height="34" rx="6" fill="#35c27b"/>
+            <rect class="tk" style="--i:20" x="645" y="130" width="34" height="34" rx="6" fill="#35c27b"/>
+            
+            <!-- Legend -->
+            <text class="s" x="10" y="205" fill="#35c27b">■ Generated</text>
+            <text class="s" x="95" y="205" fill="#e5534b">■ Failed (limit, outage)</text>
+            <text class="s" x="270" y="205" fill="#4da3ff">■ Already existed: preserved (0 tokens)</text>
+            <text class="s" x="10" y="226" fill="#98a5c0">Illustrative 12-file pipeline. Second run exclusively processes unfinished files.</text>
+          </svg>
+        </div>
+
+        <h2 class="rv"><span class="n">03 · PRINCIPLE 2</span>Respect rate limits instead of fighting them</h2>
+        <p class="rv">
+          Rather than spamming asynchronous parallel requests until hitting an API wall, the engine introduces a calibrated 6-second preventive cooldown between successive file generations. If an upstream 429 occurs nonetheless, the engine parses the vendor's <code>Retry-After</code> header, appends a 2-second safety buffer, and backs off gracefully with up to 3 automatic retries.
+        </p>
+
+        <!-- Animated Execution Log -->
+        <div class="code rv">
+          <span class="tl" style="--i:0;color:#8997b5">⏳ [INFO] Preventive 6s cadence between calls to maintain healthy rate limits...</span>
+          <span class="tl" style="--i:1;color:#35c27b">✓ [200 OK] knowledge/07-architecture.md written successfully.</span>
+          <span class="tl" style="--i:2;color:#e5534b">⚠ [429 ERROR] Rate limit reached (Tokens-per-Minute TPM exceeded).</span>
+          <span class="tl" style="--i:3;color:#e8b84b">⏸ [BACKOFF] Upstream requested delay: 14s. Adding safety margin (+2s) = 16s...</span>
+          <span class="tl" style="--i:4;color:#7fb8ff">↻ [RETRY] Attempt 1 of 3 resuming...</span>
+          <span class="tl" style="--i:5;color:#35c27b">✓ [200 OK] knowledge/08-resilience.md written successfully.</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--mut); margin-top: -4px; margin-bottom: 24px;">
+          Telemetry log illustrating self-healing execution and backoff behavior.
+        </p>
+
+        <h2 class="rv"><span class="n">04 · PRINCIPLE 3</span>Always configure a Model Plan B</h2>
+        <p class="rv">
+          When an AI provider suffers sustained downtime, our gateway triggers <strong>automatic model fallback</strong> with exponential retries. Under our <em>Bring Your Own Key (BYOK)</em> model, developers configure primary and secondary providers—including generous free tiers (Groq, Google Gemini) alongside 100% offline local models via Ollama.
+        </p>
+
+        <h2 class="rv"><span class="n">05 · PRINCIPLE 4</span>Transparent operational visibility</h2>
+        <p class="rv">
+          Long-running research taking several minutes must never become an opaque black box. The engine streams granular events via <em>Server-Sent Events (SSE)</em> to the web console while maintaining an operation status API. A metadata manifest (<code>_meta.json</code>) tracks cumulative progress, while <code>OVERVIEW.md</code> organizes the resulting knowledge base into clean navigation links.
+        </p>
+
+        <h2 class="rv"><span class="n">06 · PRINCIPLE 5</span>Minimal dependencies, defensive parsing</h2>
+        <p class="rv">
+          The gateway client is written with zero third-party dependencies, leveraging native Node.js core modules (<code>https</code>, <code>http</code>, <code>fs</code>, <code>path</code>). Because LLMs frequently wrap JSON responses in markdown fences or trailing thoughts, the output parser applies defensive cleaning to guarantee valid JSON formatting before disk persistence.
+        </p>
+
+        <h2 class="rv"><span class="n">07 · CHECKLIST</span>Production checklist for your own long-running AI jobs</h2>
+        <p class="rv">
+          If you build batch automation scripts, data pipelines, or multi-agent workflows, use this checklist to guarantee cost efficiency and fault tolerance:
+        </p>
+        <ul class="ck rv">
+          <li><strong>Incremental Persistence:</strong> Every intermediate artifact is written to disk immediately upon completion, never accumulated in volatile memory.</li>
+          <li><strong>Artifact Idempotence:</strong> Re-executing a workflow detects existing output files and automatically skips completed steps.</li>
+          <li><strong>Active Rate-Limit Handling:</strong> Explicitly parses the <code>Retry-After</code> response header instead of guessing backoff windows.</li>
+          <li><strong>Preventive Cadence:</strong> Calibrated intervals between successive requests to prevent predictable throttling.</li>
+          <li><strong>Finite Retry Guardrails:</strong> Configurable maximum attempt thresholds with safety margins to prevent infinite loops.</li>
+          <li><strong>Fallback Routing:</strong> Configured alternate models or secondary providers if primary infrastructure drops.</li>
+          <li><strong>Live Telemetry:</strong> Real-time streaming events (e.g. SSE) and clean operational logging.</li>
+          <li><strong>Defensive Parsing:</strong> Sanitizes markdown code fences and extraneous text surrounding structured JSON payloads.</li>
+        </ul>
+
+        <h2 class="rv"><span class="n">08 · HONEST BOUNDARIES</span>What resumable execution doesn't solve</h2>
+        <p class="rv">
+          Preserving existing files protects your API budget, but demands discipline: if you intentionally want to regenerate a document with revised requirements, you must delete that file before triggering the run. Furthermore, automation never eliminates human review: generated technical assets remain drafts that warrant engineering scrutiny. Finally, preventive delays necessarily slow execution speed in exchange for rock-solid reliability.
+        </p>
+
+        <!-- Stats Counters -->
+        <div class="stats rv">
+          <div><b data-n="3">0</b>rate limit retries</div>
+          <div><b data-n="6" data-s="s">0s</b>preventive cadence</div>
+          <div><b data-n="2" data-s="s">0s</b>extra safety buffer</div>
+          <div><b data-n="0">0</b>tokens on existing files</div>
+        </div>
+
+        <blockquote class="rv">
+          A great AI pipeline fails exactly like a great batch job: <strong>slowly, predictably, and without losing what it already built</strong>.
+        </blockquote>
+
+      </div>
+
+      <!-- Author Bio Card -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            More than 28 years in software development and architecture. Creator of <strong>AI Second Brain</strong>,
+            pioneer in persistent memory, continuous governance, and AI Decision Gate for autonomous agents.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">View GitHub projects ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navigation Between Articles -->
+      <nav class="article-navigation" aria-label="Other articles">
+        <a href="knowledge-and-action-two-layers.html" class="nav-link-card">
+          <span class="nav-link-label">← Previous Article</span>
+          <span class="nav-link-title">Knowledge and action in two layers: how to organize technical research for agents</span>
+        </a>
+        <a href="research-lab-self-writing-documentation.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">Next Article →</span>
+          <span class="nav-link-title">An autonomous lab that writes your project's technical documentation on its own</span>
+        </a>
+      </nav>
+
+      <!-- ── Final CTA & Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210"
+          height="115">
+        <h3 class="cta-title">Conduct in-depth research without token waste</h3>
+        <p class="cta-desc">
+          <strong>AI Second Brain</strong> automates deep technical research with guaranteed disk persistence, fault tolerance, and multi-provider compatibility.
+        </p>
+        <div class="cta-buttons">
+          <a href="../../demo/index.html" target="_blank" rel="noopener" class="cta-btn primary">
+            🌐 Open Live 3D Demo
+          </a>
+          <a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener"
+            class="cta-btn secondary">
+            ⭐ View on GitHub
+          </a>
+        </div>
+        <div class="cta-au">
+          Created and maintained with passion by <strong>Alfredo R. Câmara</strong>
+          (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> ·
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Transforming AI agents into senior software engineers with living memory and continuous governance.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #SoftwareEngineering #AIAgents #ArtificialIntelligence #TokenCost #Resilience #ResearchLab #Architecture #LLMOps
+      </p>
+
+    </article>
+  </main>
+
+  <!-- Standard Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank"
+        rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Persistent Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script>
+    (function () {
+      // 1. Particle Canvas Background
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Counters
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Copy Article Button
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Text copied!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copy article text';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Unable to copy automatically. Please select and copy manually.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+
+</html>
+

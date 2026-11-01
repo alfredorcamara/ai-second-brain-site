@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blog — AI Second Brain</title>
+  <link rel="icon" href="../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/">
+  <script>
+    (function () {
+      var lang = 'pt';
+      try {
+        var q = new URLSearchParams(window.location.search).get('lang');
+        var saved = localStorage.getItem('asb-lang');
+        if (q === 'en' || q === 'pt') {
+          lang = q;
+        } else if (saved === 'en' || saved === 'pt') {
+          lang = saved;
+        } else if (navigator.language && !navigator.language.toLowerCase().startsWith('pt')) {
+          lang = 'en';
+        }
+      } catch (e) {}
+      window.location.replace(lang + '/index.html' + window.location.search + window.location.hash);
+    })();
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=pt/index.html">
+  </noscript>
+  <style>
+    body {
+      background: #03060f;
+      color: #e8ecf5;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    a {
+      color: #e8b84b;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <p>Redirecionando... / Redirecting... <a href="pt/index.html">Português</a> | <a href="en/index.html">English</a></p>
+</body>
+</html>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>An autonomous lab that writes your project's technical documentation on its own — AI Second Brain</title>
+  <meta name="description"
+    content="How Research Lab turns ephemeral AI chat threads into structured, versioned technical documentation connected to the project graph.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/research-lab-self-writing-documentation.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/research-lab-documentacao-tecnica.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/research-lab-self-writing-documentation.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="An autonomous lab that writes your project's technical documentation on its own">
+  <meta property="og:description"
+    content="How Research Lab turns ephemeral AI chat threads into structured, versioned technical documentation connected to the project graph.">
+  <meta property="og:image" content="../assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="An autonomous lab that writes your project's technical documentation on its own">
+  <meta name="twitter:description"
+    content="How Research Lab turns ephemeral AI chat threads into structured, versioned technical documentation connected to the project graph.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Top Canvas Background ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Required Gold Highlight in Title (#e8b84b) ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Action Bar (Copy Article) ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Typography & Paragraphs ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Grids & Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Chips Flow (.flow, .fc, .ar) ── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+      font-family: var(--font-sans);
+      font-size: 14px;
+    }
+
+    .flow b {
+      width: 100%;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .fc {
+      opacity: 0;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      color: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .flow.in .fc {
+      animation: popLine 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.25s);
+    }
+
+    .ar {
+      color: var(--mut);
+      font-weight: 700;
+    }
+
+    /* ── Tables (.tw, .tb) ── */
+    .tw {
+      overflow-x: auto;
+      margin: 24px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(13, 20, 38, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .tb {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    .tb th, .tb td {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .tb th {
+      color: var(--gold);
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 15px;
+    }
+
+    .tb tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tb td:first-child {
+      white-space: nowrap;
+    }
+
+    /* ── Code Block with Line Transitions ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 18px 22px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code .tl {
+      display: block;
+      opacity: 0;
+      white-space: pre;
+    }
+
+    .code.in .tl {
+      animation: popLine 0.4s forwards;
+      animation-delay: calc(var(--i) * 0.18s);
+    }
+
+    @keyframes popLine {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Self-Counting Statistics ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Quote with Gold Border ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 12px 0 12px 22px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Article CTA Box ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans) !important;
+      font-size: 25px !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      margin: 0 0 14px 0 !important;
+      text-align: center !important;
+      width: 100% !important;
+      letter-spacing: -0.01em;
+    }
+
+    .article-cta-box .cta-desc {
+      color: #aab6d3;
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 660px;
+      margin: 0 auto 28px auto;
+      font-family: var(--font-sans);
+      text-align: center;
+    }
+
+    .article-cta-box .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+    .article-cta-box .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 14.5px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .article-cta-box .cta-btn.primary {
+      background: var(--gold);
+      color: #03060f;
+      box-shadow: 0 4px 16px rgba(255, 199, 107, 0.3);
+    }
+
+    .article-cta-box .cta-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 199, 107, 0.45);
+    }
+
+    .article-cta-box .cta-btn.secondary {
+      background: rgba(13, 20, 38, 0.85);
+      color: #fff;
+      border: 1px solid #3b4a72;
+    }
+
+    .article-cta-box .cta-btn.secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .fc, .tl {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Alternar idioma / Switch language (PT ⇄ EN)"
+        aria-label="Alternar idioma / Switch language" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star this repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Animated Particle Canvas ── -->
+  <div class="canvas-bg-wrapper" aria-hidden="true">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Article Page Wrapper ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Breadcrumb navigation">
+        <a href="../../index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Research Lab &amp; Autonomy</span>
+      </nav>
+
+      <!-- Article Header -->
+      <header class="article-header">
+        <span class="article-badge">Autonomy &amp; Documentation · 5 min read</span>
+        <h1 class="article-title">An autonomous lab that <em>writes your project's technical documentation</em> on its own.</h1>
+        <p class="article-lead">
+          How to turn scattered AI conversations into enduring, two-layer versioned knowledge synchronized in Markdown files.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Creator of AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 October 05, 2026</span>
+            <span>·</span>
+            <span>⚡ AI Second Brain Research Lab</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Action Bar (Copy Article) -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button>
+      </div>
+
+      <!-- Article Body with Interactive Visuals -->
+      <div class="article-body" id="art">
+
+        <p class="rv">
+          Every development team has lived this: a complex technical topic requires research, someone spends hours in a chat with an LLM, and the entire outcome stays trapped in an ephemeral browser tab that no one will ever find again. The <b>Research Lab</b> in AI Second Brain was created to turn these ephemeral conversations into versioned knowledge organized in Markdown files directly inside the project repository. You define the topic, and the autonomous engine takes over research, structuring, and cataloging.
+        </p>
+
+        <h2 class="rv"><span class="n">01 · HOW IT WORKS</span>From question to versioned repository file</h2>
+        
+        <div class="flow rv">
+          <b style="color: var(--gold);">Execution Flow</b>
+          <span class="fc" style="--i:0">1. Free topic prompt</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:1">2. AI aligns context with PROJECT.md</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:2">3. Subtopic decomposition</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:3">4. .md file generation</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:4">5. 3D graph &amp; live memory</span>
+        </div>
+
+        <p class="rv">
+          The key differentiator is <strong>architectural context</strong>: before starting research, the AI reads the project's core contracts and aligns the briefing with the real constraints and goals of that ecosystem. That's why research output is immediately tailored to your stack and conventions, rather than generic like a standard web search.
+        </p>
+
+        <h2 class="rv"><span class="n">02 · TWO LAYERS</span>Knowledge on one side, action on the other</h2>
+        <div class="grid">
+          <div class="card rv">
+            <b>📘 knowledge/</b>
+            The <em>what</em> and <em>why</em>: foundational concepts, state of the art, industry benchmarks, and trade-off analysis. <em>Example:</em> mathematical foundations of the ELO algorithm, event-driven architecture concepts.
+          </div>
+          <div class="card rv">
+            <b>🛠️ actionable/</b>
+            The <em>how to apply</em>: practical technical specifications, executable schemas (SQL Server, Prisma, PostgreSQL), TypeScript/Node.js controllers, and test suites. <em>Example:</em> ELO calculation implementation and API routes.
+          </div>
+        </div>
+
+        <div class="code rv">
+          <span class="tl" style="--i:0;">projects/&lt;project&gt;/RESEARCH/&lt;topic&gt;/</span>
+          <span class="tl" style="--i:1;">├── _meta.json          # status and Living Prompt history</span>
+          <span class="tl" style="--i:2;">├── OVERVIEW.md         # executive summary and topic roadmap</span>
+          <span class="tl" style="--i:3;color:#7fb8ff">├── knowledge/          # layer 1: what and why</span>
+          <span class="tl" style="--i:4;color:#7fb8ff">│   ├── fundamental_rules.md</span>
+          <span class="tl" style="--i:5;color:#7fb8ff">│   ├── state_of_the_art.md</span>
+          <span class="tl" style="--i:6;color:#7fb8ff">│   └── comparative_analysis.md</span>
+          <span class="tl" style="--i:7;color:#e8b84b">└── actionable/         # layer 2: how to apply in the project</span>
+          <span class="tl" style="--i:8;color:#e8b84b">    ├── proposed_architecture.md</span>
+          <span class="tl" style="--i:9;color:#e8b84b">    ├── suggested_schema.md</span>
+          <span class="tl" style="--i:10;color:#e8b84b">    └── business_rules.md</span>
+        </div>
+
+        <h2 class="rv"><span class="n">03 · LIVING PROMPT</span>The research definition evolves with you</h2>
+        <p class="rv">
+          The definition of a research job isn't a static one-liner. You can refine intent at any moment or click <strong>“Enhance with AI”</strong>, which suggests refinements based on the current project governance state. Each iteration is audited and logged in the <code>_meta.json</code> file:
+        </p>
+
+        <div class="flow rv">
+          <b style="color:#7fb8ff">Living Prompt Evolution</b>
+          <span class="fc" style="--i:0">v1 · developer's raw intent</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:1">v2 · refined by AI based on architecture</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:2">v3 · focus and scope tuned by you</span>
+        </div>
+
+        <p class="rv">
+          In subsequent runs, history is compared to flag contradictions, new discoveries, or needed addenda without losing previous versions. In the web interface, a <em>“Before vs After”</em> diff view allows accepting or tweaking suggestions before approval.
+        </p>
+
+        <h2 class="rv"><span class="n">04 · THE ENGINE</span>Engineered not to break midway</h2>
+        <p class="rv">
+          Deep, comprehensive research frequently hits tokens-per-minute (TPM) limits, timeouts, and network drops. The engine (<code>research-engine.js</code> integrated into the unified AI gateway) was engineered to handle these issues resiliently without bloated third-party dependencies, relying solely on native Node.js modules:
+        </p>
+
+        <div class="code rv">
+          <span class="tl" style="--i:0;color:#35c27b">✓ knowledge/fundamental_rules.md</span>
+          <span class="tl" style="--i:1;color:#35c27b">✓ knowledge/state_of_the_art.md</span>
+          <span class="tl" style="--i:2;color:#e8b84b">⏸ [RATE LIMIT] Dynamic backoff requested by provider + 2s buffer</span>
+          <span class="tl" style="--i:3;color:#35c27b">✓ knowledge/comparative_analysis.md (retry 1 succeeded)</span>
+          <span class="tl" style="--i:4;color:#8997b5">— [SESSION INTERRUPTED BY USER AND RESUMED] —</span>
+          <span class="tl" style="--i:5;color:#7fb8ff">↻ fundamental_rules.md already exists on disk: skipped (0 tokens)</span>
+          <span class="tl" style="--i:6;color:#35c27b">✓ actionable/proposed_architecture.md</span>
+        </div>
+
+        <div class="grid">
+          <div class="card rv">
+            <b>Rate limits under control</b>
+            Catches HTTP 429, computes server-specified pause time, adds a 2-second preventive buffer, and intelligently retries up to 3 times.
+          </div>
+          <div class="card rv">
+            <b>Instant job resumption</b>
+            When restarting an interrupted job, checks physical disk files and skips already synthesized topics, safeguarding your budget.
+          </div>
+          <div class="card rv">
+            <b>Real-time progress streaming</b>
+            A continuous Server-Sent Events (SSE) feed powers progress bars and live logs in the user interface.
+          </div>
+          <div class="card rv">
+            <b>Defensive outputs &amp; fallbacks</b>
+            Aggressive markdown sanitization for reliable schema extraction, paired with automatic provider failover during outages.
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">05 · INTEGRATION</span>Knowledge made immediately visible</h2>
+        <p class="rv">
+          At the end of the research cycle, the engine compiles everything into a master index (<code>OVERVIEW.md</code>) complete with relative navigable links. Automatically, these new artifacts are ingested by the <strong>3D Neural Graph</strong>, receiving distinct nodes and color coding per thematic layer. On the dashboard, Research Lab features a dedicated workspace view with research cards, prompt audit trails, and direct shortcuts to the local file explorer.
+        </p>
+
+        <h2 class="rv"><span class="n">06 · FOR BUILDERS</span>The API powering the engine</h2>
+        <p class="rv">
+          All this automation operates on lightweight, decoupled REST endpoints, enabling external tools or custom automation scripts to plug directly into the research pipeline:
+        </p>
+        
+        <div class="tw rv">
+          <table class="tb">
+            <thead>
+              <tr>
+                <th>API Route</th>
+                <th>Responsibility</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>POST /api/ai/refine-prompt</code></td>
+                <td>Refines user intent combining <code>PROJECT.md</code> and <code>ARCHITECTURE.md</code></td>
+              </tr>
+              <tr>
+                <td><code>POST /api/ai/decompose</code></td>
+                <td>Decomposes topic into balanced <em>knowledge</em> and <em>actionable</em> subtopics</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/projects/:name/research</code></td>
+                <td>Scaffolds physical lab structure in local file system</td>
+              </tr>
+              <tr>
+                <td><code>POST .../research/:slug/definition</code></td>
+                <td>Updates research definition with incremental revision tracking</td>
+              </tr>
+              <tr>
+                <td><code>POST .../research/:slug/run</code></td>
+                <td>Triggers autonomous generation engine with SSE progress stream</td>
+              </tr>
+              <tr>
+                <td><code>GET .../research/:slug/status</code></td>
+                <td>Queries real-time status of the executing research pipeline</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="rv"><span class="n">07 · HONEST LIMITS</span>Treat as technical drafts</h2>
+        <p class="rv">
+          Content synthesized by language models demands critical engineering review. Research Lab dramatically accelerates exploration and establishes structured documentation, but the responsibility of adopting a pattern, approving a schema, or validating business rules remains with the developer — and should be formalized in an Architectural Decision Record (ADR).
+        </p>
+
+        <!-- Stats Counters -->
+        <div class="stats rv">
+          <div><b data-n="2">0</b>knowledge layers</div>
+          <div><b data-n="3">0</b>automatic retries</div>
+          <div><b data-n="6" data-s="s">0s</b>safety cadence</div>
+          <div><b data-n="7">0</b>AI providers (BYOK)</div>
+        </div>
+
+        <blockquote class="rv">
+          Research turned into versioned files ceases to be fleeting chat banter and becomes a <strong>permanent technical asset of your project</strong>.
+        </blockquote>
+
+      </div>
+
+      <!-- Author Bio Card -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            Over 28 years in software development and architecture. Creator of <strong>AI Second Brain</strong>,
+            pioneer in persistent memory, continuous governance, and AI Decision Gate for autonomous agents.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">View GitHub projects ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navigation Between Articles -->
+      <nav class="article-navigation" aria-label="Other articles">
+        <a href="resilient-ai-research-resuming-jobs.html" class="nav-link-card">
+          <span class="nav-link-label">← Previous Article</span>
+          <span class="nav-link-title">Resilient AI research that resumes where it left off without wasting tokens</span>
+        </a>
+        <a href="knowledge-and-action-two-layers.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">See Also →</span>
+          <span class="nav-link-title">Knowledge and action in two layers: how I organize technical research</span>
+        </a>
+      </nav>
+
+      <!-- ── Final CTA & Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210"
+          height="115">
+        <h3 class="cta-title">Discover the Research Lab in AI Second Brain</h3>
+        <p class="cta-desc">
+          The live demo is read-only: explore the 3D graph and documentation. To create projects and run autonomous research pipelines, install locally. FSL-1.1-MIT licensed, free for personal and internal productive use.
+        </p>
+        <div class="cta-buttons">
+          <a href="../../demo/index.html" target="_blank" rel="noopener" class="cta-btn primary">
+            🌐 Open Live 3D Demo
+          </a>
+          <a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener"
+            class="cta-btn secondary">
+            ⭐ View on GitHub
+          </a>
+        </div>
+        <div class="cta-au">
+          Created and maintained with passion by <strong>Alfredo R. Câmara</strong>
+          (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> ·
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Empowering AI agents to behave like senior software engineers with living memory and continuous governance.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #ArtificialIntelligence #AIAgents #SoftwareEngineering #LLM #Documentation #DevTools #Nodejs #Markdown
+      </p>
+
+    </article>
+  </main>
+
+  <!-- ── Standard Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank"
+        rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Scripts: i18n & Interactivity -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script>
+    (function () {
+      // 1. Particle Canvas Background
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Counters
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Copy Article Button
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Text copied!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copy article text';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Could not copy text automatically. Please select and copy manually.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+
+</html>
+

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knowledge and action in two layers: how to organize technical research for AI agents — AI Second Brain</title>
+  <meta name="description"
+    content="How decoupling technical research between knowledge/ and actionable/ eliminates the 'Lost in the Middle' cognitive bottleneck in AI agents. Research Lab methodology.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/knowledge-and-action-two-layers.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/conhecimento-e-acao-duas-camadas.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/knowledge-and-action-two-layers.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="Knowledge and action in two layers: how to organize technical research for AI agents">
+  <meta property="og:description"
+    content="How decoupling technical research between knowledge/ and actionable/ eliminates the 'Lost in the Middle' cognitive bottleneck in AI agents. Research Lab methodology.">
+  <meta property="og:image" content="../assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Knowledge and action in two layers: how to organize technical research for AI agents">
+  <meta name="twitter:description"
+    content="How decoupling technical research between knowledge/ and actionable/ eliminates the 'Lost in the Middle' cognitive bottleneck in AI agents. Research Lab methodology.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Particle Canvas Background ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Gold Title Accent ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Action Row ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Typography & Headings ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Grids & Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── SVG Diagrams ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--blue);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    @keyframes plOk {
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    /* ── Comparison Table ── */
+    .tw {
+      overflow-x: auto;
+      margin: 24px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(13, 20, 38, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .tb {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    .tb th, .tb td {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .tb th {
+      color: var(--gold);
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 15px;
+    }
+
+    .tb tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tb td:first-child {
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    /* ── Code Blocks ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code pre {
+      margin: 0;
+      font: inherit;
+      white-space: pre;
+    }
+
+    .code .tl {
+      display: block;
+      opacity: 0;
+      white-space: pre;
+    }
+
+    .code.in .tl {
+      animation: popLine 0.4s forwards;
+      animation-delay: calc(var(--i) * 0.25s);
+    }
+
+    @keyframes popLine {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Gold Check List ── */
+    .article-body ul.ck,
+    ul.ck {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .article-body ul.ck li,
+    ul.ck li {
+      padding: 10px 0 10px 32px;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: #d1d5db;
+    }
+
+    .article-body ul.ck li:before,
+    ul.ck li:before {
+      content: "✓";
+      position: absolute;
+      left: 6px;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    /* ── Flow Chips ── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+      font: 14px var(--font-sans);
+    }
+
+    .flow b {
+      width: 100%;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .fc {
+      opacity: 0;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      color: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .flow.in .fc {
+      animation: popLine 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.3s);
+    }
+
+    .ar {
+      color: var(--mut);
+      font-weight: 700;
+    }
+
+    /* ── Dynamic Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Blockquote ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Article CTA Box ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .article-cta-box .cta-desc {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: #aab6d3;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .article-cta-box .cta-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .article-cta-box .cta-actions .btn {
+      margin: 0 !important;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .article-cta-box .cta-actions .btn-primary {
+      background: var(--gold);
+      color: #03060f;
+    }
+
+    .article-cta-box .cta-actions .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(255, 199, 107, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-actions .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .fc, .tl, .dg .ok {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Switch language / Alternar idioma (EN ⇄ PT)"
+        aria-label="Switch language / Alternar idioma" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Particle Canvas Background ── -->
+  <div class="canvas-bg-wrapper">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Article Container ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../../index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Research Lab &amp; Architecture</span>
+      </nav>
+
+      <!-- Article Header -->
+      <header class="article-header">
+        <span class="article-badge">Architecture · 6 min read</span>
+        <h1 class="article-title"><em>Knowledge and action</em> in two layers: how to organize technical research for AI agents</h1>
+        <p class="article-lead">
+          How decoupling technical research between <code>knowledge/</code> and <code>actionable/</code> avoids the “Lost in the Middle” syndrome and converts raw theory into production-ready code.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Creator of AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 October 10, 2026</span>
+            <span>·</span>
+            <span>⚡ Research Lab &amp; Architecture</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Top Action Row -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button>
+      </div>
+
+      <!-- Article Body -->
+      <div class="article-body" id="art">
+
+        <p class="rv">
+          Technical research typically ends up trapped inside a sprawling markdown document that blends theory, editorial opinions, and raw code snippets. For a human engineer, parsing it is exhausting. For an AI agent constrained by token windows and vulnerable to the “Lost in the Middle” effect, it is fatal: the model must churn through hundreds of paragraphs just to extract the specific parameters needed for an immediate task. The architectural remedy in AI Second Brain is decoupling research into <b>two distinct layers</b>: one dedicated to timeless knowledge, and the other to actionable implementation.
+        </p>
+
+        <h2 class="rv"><span class="n">01 · THE CORE IDEA</span>Two distinct questions, two dedicated locations</h2>
+        <p class="rv">
+          Every technical topic answers two fundamentally different questions: “What is this and why does it work this way?” versus “How do I apply this to my exact tech stack?”. Each question belongs in its own directory, bridged cleanly by a formal Architecture Decision Record (ADR).
+        </p>
+
+        <!-- SVG Diagram: Knowledge vs Actionable -->
+        <div class="dg rv">
+          <svg viewBox="0 0 700 235" role="img" aria-label="Research topic partitioned into knowledge and actionable layers, joined by an ADR">
+            <rect class="h" x="250" y="8" width="200" height="50" rx="12"/>
+            <text x="350" y="38" text-anchor="middle">Research Topic</text>
+            <path class="fl" d="M320 58 L145 108"/>
+            <path class="fl" d="M380 58 L555 108"/>
+            <rect class="b" x="20" y="108" width="250" height="100" rx="12"/>
+            <text x="145" y="140" text-anchor="middle" style="fill:#7fb8ff">knowledge/</text>
+            <text class="s" x="145" y="162" text-anchor="middle">the what and the why</text>
+            <text class="s" x="145" y="182" text-anchor="middle">principles · state of the art · trade-offs</text>
+            <rect class="b" x="430" y="108" width="250" height="100" rx="12"/>
+            <text x="555" y="140" text-anchor="middle" style="fill:#e8b84b">actionable/</text>
+            <text class="s" x="555" y="162" text-anchor="middle">how to apply in this project</text>
+            <text class="s" x="555" y="182" text-anchor="middle">schemas · code · tests · rules</text>
+            <path class="fl" d="M270 158 L292 158"/>
+            <path class="fl" d="M408 158 L430 158"/>
+            <rect class="h ok" x="292" y="128" width="116" height="60" rx="10"/>
+            <text x="350" y="154" text-anchor="middle">ADR</text>
+            <text class="s" x="350" y="174" text-anchor="middle">the decision</text>
+          </svg>
+        </div>
+
+        <h2 class="rv"><span class="n">02 · THE CONTRAST</span>Divergence between the two layers</h2>
+        <div class="tw rv">
+          <table class="tb">
+            <thead>
+              <tr>
+                <th>Criterion</th>
+                <th>knowledge/</th>
+                <th>actionable/</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Core Question</td>
+                <td>The what and the why</td>
+                <td>How to execute within this project</td>
+              </tr>
+              <tr>
+                <td>Content</td>
+                <td>Theoretical foundations, state-of-the-art benchmarks, trade-offs</td>
+                <td>DDL schemas, pseudocode, controllers, unit tests adapted to stack</td>
+              </tr>
+              <tr>
+                <td>Stack Dependent?</td>
+                <td>No: universally applicable across projects</td>
+                <td>Yes: derived strictly from project contracts</td>
+              </tr>
+              <tr>
+                <td>When the Agent Reads</td>
+                <td>To reason, benchmark alternatives, and justify decisions</td>
+                <td>To generate code, run migrations, and execute tests</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mut" style="font-size:14px; color: var(--mut); margin-bottom: 24px;">Practical architectural taxonomy distilled from production agent workflows.</p>
+
+        <h2 class="rv"><span class="n">03 · A CONCRETE EXAMPLE</span>From theoretical math to concrete API endpoint</h2>
+        <p class="rv">
+          Consider technical research exploring an ELO matchmaking ranking engine. The knowledge layer houses mathematical distribution formulas. The actionable layer contains concrete TypeScript calculation algorithms, database schemas, and Express route controllers. In between, an immutable ADR records why ELO was selected over TrueSkill.
+        </p>
+
+        <div class="code rv">
+          <span class="tl" style="--i:0;color:#7fb8ff">knowledge/   (example topic: ELO ranking system)</span>
+          <span class="tl" style="--i:1;color:#7fb8ff">  mathematical fundamentals of the ELO algorithm</span>
+          <span class="tl" style="--i:2;color:#7fb8ff">  trade-offs, inflation risks, and variations</span>
+          <span class="tl" style="--i:3;color:#e8b84b">decisions/   ADR: adopted ELO with specific K-factor parameters</span>
+          <span class="tl" style="--i:4;color:#35c27b">actionable/</span>
+          <span class="tl" style="--i:5;color:#35c27b">  ELO calculation engine in TypeScript</span>
+          <span class="tl" style="--i:6;color:#35c27b">  SQL DDL schema for player rating table</span>
+          <span class="tl" style="--i:7;color:#35c27b">  Express match endpoints and Jest integration tests</span>
+        </div>
+        <p class="mut" style="font-size:14px; color: var(--mut); margin-bottom: 24px;">Illustrative directory tree reflecting Research Lab outputs.</p>
+
+        <h2 class="rv"><span class="n">04 · CLASSIFICATION TESTS</span>Three quick heuristic checks</h2>
+        <p class="rv">
+          Whenever you or your agent wonder where a snippet belongs, apply these quick litmus tests:
+        </p>
+        <ul class="ck rv">
+          <li>If I changed the programming language or framework tomorrow, would this text remain 100% valid? If yes, it belongs in <code>knowledge/</code>.</li>
+          <li>Could an AI agent implement the feature directly without asking any clarifying questions? If yes, it belongs in <code>actionable/</code>.</li>
+          <li>Does it explain why we chose Option A over Option B? If yes, that trade-off belongs in an <b>ADR</b>.</li>
+        </ul>
+
+        <h2 class="rv"><span class="n">05 · HOW AGENTS INGEST</span>Laser-focused context, auditable sources</h2>
+        <div class="flow rv">
+          <b style="color:#e8b84b">Incoming Technical Query</b>
+          <span class="fc chip" style="--i:0">Ctrl+K: Ask the Brain</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:1">BM25 / TF-IDF Ranking</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:2">5 to 7 Prioritized Files</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:3">Answer with Clickable Citations</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:4">Up to 12 Sources on Demand</span>
+        </div>
+        <p class="rv">
+          The hybrid search prioritizes governance documents (ADRs at 2.4x, active state at 2.2x, contracts at 2.0x, rules at 1.8x) and injects only the most relevant 5 to 7 primary documents into working context. When research concludes, an <code>OVERVIEW.md</code> indexes all topics, and the 3D graph renders distinct node glyphs for each layer.
+        </p>
+
+        <h2 class="rv"><span class="n">06 · FROM THEORY TO PRODUCTION</span>The end-to-end pipeline</h2>
+        <div class="flow rv">
+          <b style="color:#35c27b">Recommended Workflow</b>
+          <span class="fc chip" style="--i:0">Research</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:1">knowledge/</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:2">ADR Record</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:3">actionable/</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:4">Source Code</span>
+          <span class="ar">→</span>
+          <span class="fc chip" style="--i:5">Session Memory</span>
+        </div>
+        <p class="rv">
+          Research informs but never unilaterally commits code. Knowledge provides background, the ADR codifies architectural decisions, the actionable layer translates logic to your current framework, and session capture synchronizes project state.
+        </p>
+
+        <h2 class="rv"><span class="n">07 · PITFALLS</span>What can go wrong</h2>
+        <div class="grid">
+          <div class="card rv">
+            <b>Action Without Contracts</b>
+            If <code>PROJECT.md</code> and <code>ARCHITECTURE.md</code> are vague, the actionable layer defaults to generic boilerplate. Quality actionable outputs require rigorous contracts.
+          </div>
+          <div class="card rv">
+            <b>Knowledge as Dead Encyclopedia</b>
+            If nobody references or consults the knowledge layer, it becomes digital hoard. Periodically prune and archive superseded topics.
+          </div>
+          <div class="card rv">
+            <b>Unreviewed AI Claims</b>
+            Agent research outputs are technical drafts. Always verify critical performance claims and security assumptions before shipping.
+          </div>
+          <div class="card rv">
+            <b>Stale Research</b>
+            Frameworks evolve rapidly. Archive out-of-date research to protect your agent from recommending deprecated API methods.
+          </div>
+        </div>
+
+        <div class="stats rv">
+          <div><b data-n="2">0</b>research layers</div>
+          <div><b data-n="3">0</b>classification tests</div>
+          <div><b data-n="7">0</b>max files in initial synthesis</div>
+          <div><b data-n="12">0</b>on-demand sources</div>
+        </div>
+
+        <blockquote class="rv">
+          <strong>Theory without action becomes an unread encyclopedia. Action without theory becomes boilerplate without rationale.</strong>
+        </blockquote>
+
+      </div>
+
+      <!-- Author Bio Card -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            More than 28 years in software development and architecture. Creator of <strong>AI Second Brain</strong>,
+            pioneer in persistent memory, continuous governance, and AI Decision Gate for autonomous agents.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">View GitHub projects ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navigation Between Articles -->
+      <nav class="article-navigation" aria-label="Other articles">
+        <a href="does-your-ai-agent-have-amnesia.html" class="nav-link-card">
+          <span class="nav-link-label">← Previous Article</span>
+          <span class="nav-link-title">Does your AI agent have amnesia? Give it a second brain</span>
+        </a>
+        <a href="resilient-ai-research-resuming-jobs.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">Next Article →</span>
+          <span class="nav-link-title">AI research that resumes where it left off and never spends tokens twice</span>
+        </a>
+      </nav>
+
+      <!-- ── Final CTA & Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210"
+          height="115">
+        <h3 class="cta-title">Organize your research in structured layers</h3>
+        <p class="cta-desc">
+          The online demo runs in read-only mode. To configure custom research labs, clone the repository locally. Distributed under the FSL-1.1-MIT license (free for personal use, research, and internal commercial use).
+        </p>
+        <div class="cta-actions">
+          <a href="../../demo/index.html" target="_blank" rel="noopener" class="btn btn-primary">
+            🌐 Open Live 3D Demo
+          </a>
+          <a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener"
+            class="btn btn-secondary">
+            ⭐ View on GitHub
+          </a>
+        </div>
+        <div class="cta-au">
+          Created and maintained with passion by <strong>Alfredo R. Câmara</strong>
+          (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> ·
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Transforming AI agents into senior software engineers with living memory and continuous governance.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #SoftwareEngineering #AIAgents #ArtificialIntelligence #Documentation #LLM #Architecture #Markdown #DevTools
+      </p>
+
+    </article>
+  </main>
+
+  <!-- Standard Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank"
+        rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Persistent Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script>
+    (function () {
+      // 1. Particle Canvas Background
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Counters
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Copy Article Button
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Text copied!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copy article text';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Unable to copy automatically. Please select and copy manually.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+
+</html>
+

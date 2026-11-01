@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0 ms and zero cost: the tasks you shouldn't send to an AI — AI Second Brain</title>
+  <meta name="description"
+    content="The most valuable question isn't 'which model should I use?', but 'do I need a model here?'. Discover tasks solved in zero milliseconds and at zero token cost.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/zero-ms-and-zero-cost.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/zero-ms-custo-zero.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/zero-ms-and-zero-cost.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="0 ms and zero cost: the tasks you shouldn't send to an AI">
+  <meta property="og:description"
+    content="The most valuable question isn't 'which model should I use?', but 'do I need a model here?'. Discover tasks solved in zero milliseconds and at zero token cost.">
+  <meta property="og:image" content="../assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="0 ms and zero cost: the tasks you shouldn't send to an AI">
+  <meta name="twitter:description"
+    content="The most valuable question isn't 'which model should I use?', but 'do I need a model here?'. Discover tasks solved in zero milliseconds and at zero token cost.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Particle Canvas Background ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Required Gold Highlight in Title (#e8b84b) ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Top Action Row (Copy Article) ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      background: rgba(255, 199, 107, 0.08);
+      border: 1px solid rgba(255, 199, 107, 0.3);
+      color: var(--gold);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-article-btn:hover {
+      background: rgba(255, 199, 107, 0.18);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 199, 107, 0.2);
+    }
+
+    /* ── Content Typography ── */
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: clamp(22px, 3.2vw, 28px);
+      font-weight: 700;
+      margin: 2.4em 0 0.8em;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .article-body h2 .n {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* ── Grid & Cards ── */
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      margin: 20px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--fg-dim);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 199, 107, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .card.no {
+      border-left: 3px solid #e5534b;
+    }
+
+    .card.no b:before {
+      content: "✕ ";
+      color: #e5534b;
+    }
+
+    .card .use {
+      display: block;
+      margin-top: 10px;
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 13.5px;
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── SVG Decision Gate Diagram ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--blue);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    @keyframes plOk {
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    /* ── Flow Chips (.flow, .fc, .ar) ── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+      font: 14px var(--font-sans);
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .flow b {
+      width: 100%;
+      font-size: 13.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .fc {
+      opacity: 0;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      color: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .flow.in .fc {
+      animation: popMsg 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.35s);
+    }
+
+    .ar {
+      color: var(--mut);
+      font-weight: 700;
+    }
+
+    @keyframes popMsg {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Compact Gold Check List ── */
+    .article-body ul.ck,
+    ul.ck {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 22px 0;
+    }
+
+    .article-body ul.ck li,
+    .ck li {
+      margin: 0 !important;
+      padding: 8px 0 8px 28px !important;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+      color: #cbd5e1;
+      font-size: 15px;
+      line-height: 1.5;
+      background: transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .article-body ul.ck li:hover,
+    .ck li:hover {
+      color: #fff;
+      border-bottom-color: rgba(255, 199, 107, 0.35);
+    }
+
+    .article-body ul.ck li:before,
+    .ck li:before {
+      content: "✓";
+      position: absolute;
+      left: 2px;
+      top: 8px;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .ck li code {
+      background: rgba(255, 199, 107, 0.1);
+      border: 1px solid rgba(255, 199, 107, 0.25);
+      color: var(--gold);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+
+    /* ── Code Blocks ── */
+    .code {
+      background: #040814;
+      color: #cfe3ff;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font: 13.5px/1.6 var(--font-mono);
+      margin: 24px 0;
+      overflow-x: auto;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .code pre {
+      margin: 0;
+      font: inherit;
+      white-space: pre;
+    }
+
+    /* ── Animated Stats Counters ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Blockquote ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* ── Final Article CTA Box ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans) !important;
+      font-size: 25px !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      margin: 0 0 14px 0 !important;
+      text-align: center !important;
+      width: 100% !important;
+      letter-spacing: -0.01em;
+    }
+
+    .article-cta-box .cta-desc {
+      color: #aab6d3;
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 660px;
+      margin: 0 auto 28px auto;
+      font-family: var(--font-sans);
+      text-align: center;
+    }
+
+    .article-cta-box .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+    .article-cta-box .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 14.5px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .article-cta-box .cta-btn.primary {
+      background: var(--gold);
+      color: #03060f;
+      box-shadow: 0 4px 16px rgba(255, 199, 107, 0.3);
+    }
+
+    .article-cta-box .cta-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 199, 107, 0.45);
+    }
+
+    .article-cta-box .cta-btn.secondary {
+      background: rgba(13, 20, 38, 0.85);
+      color: #fff;
+      border: 1px solid #3b4a72;
+    }
+
+    .article-cta-box .cta-btn.secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .fc, .dg * {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Switch language / Alternar idioma (EN ⇄ PT)"
+        aria-label="Switch language / Alternar idioma" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Animated Canvas Background ── -->
+  <div class="canvas-bg-wrapper" aria-hidden="true">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Article Container ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../../index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Cost &amp; Decision</span>
+      </nav>
+
+      <!-- Article Header -->
+      <header class="article-header">
+        <span class="article-badge">Cost &amp; Decision · 5 min read</span>
+        <h1 class="article-title"><em>0 ms and zero cost</em>: the tasks you shouldn't send to an AI</h1>
+        <p class="article-lead">
+          The most valuable question in AI development isn't “which model should I use?”, but “do I need a model here?”.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Creator of AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 October 22, 2026</span>
+            <span>·</span>
+            <span>⚡ AI Decision Gate &amp; JEV</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Top Action Row -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button>
+      </div>
+
+      <!-- Article Body -->
+      <div class="article-body" id="art">
+
+        <p class="rv">
+          The most valuable question when developing with AI is not “which model do I use?”, but rather “do I even need a model here?”. Many tasks given a prompt could easily be solved by a single line of code, a business rule, or a local classifier in zero milliseconds at zero token cost. I’ve compiled the practical checklist we use at AI Second Brain to decide what <b>not</b> to send to an AI.
+        </p>
+
+        <h2 class="rv"><span class="n">01 · THE 3 QUESTIONS</span>Before writing the prompt</h2>
+        <p class="rv">
+          Our project agent follows this decision tree for every incoming demand. You can adopt the exact same flow:
+        </p>
+
+        <!-- SVG Decision Gate Diagram -->
+        <div class="dg rv">
+          <svg viewBox="0 0 700 345" role="img" aria-label="Decision Tree: Code, Rules or LLM">
+            <rect class="h" x="10" y="10" width="300" height="70" rx="12"/>
+            <text x="160" y="40" text-anchor="middle">Is it 100% deterministic?</text>
+            <text class="s" x="160" y="60" text-anchor="middle">math, boolean logic, schemas</text>
+            <path class="fl" d="M310 45 L390 45"/>
+            <text class="s" x="338" y="38">Yes</text>
+            <rect class="b ok" x="390" y="10" width="300" height="70" rx="12"/>
+            <text x="540" y="40" text-anchor="middle">Pure code or business rule</text>
+            <text class="s" x="540" y="60" text-anchor="middle">0 ms · zero token cost</text>
+            <rect class="h" x="10" y="130" width="300" height="70" rx="12"/>
+            <text x="160" y="160" text-anchor="middle">Is it a decision or classification?</text>
+            <text class="s" x="160" y="180" text-anchor="middle">approval, categorization, routing</text>
+            <path class="fl" d="M310 165 L390 165"/>
+            <text class="s" x="338" y="158">Yes</text>
+            <rect class="b ok" x="390" y="130" width="300" height="70" rx="12"/>
+            <text x="540" y="160" text-anchor="middle">AIJev / rules engine (JEV)</text>
+            <text class="s" x="540" y="180" text-anchor="middle">explainable, fast, and free</text>
+            <rect class="h" x="10" y="250" width="300" height="70" rx="12"/>
+            <text x="160" y="280" text-anchor="middle">Need to generate text or code?</text>
+            <text class="s" x="160" y="300" text-anchor="middle">or synthesize natural language</text>
+            <path class="fl" d="M310 285 L390 285"/>
+            <text class="s" x="338" y="278">Yes</text>
+            <rect class="b" x="390" y="250" width="300" height="70" rx="12"/>
+            <text x="540" y="280" text-anchor="middle">LLM via AI Gateway</text>
+            <text class="s" x="540" y="300" text-anchor="middle">fallback, cache, observability</text>
+            <path class="fl" d="M160 80 L160 130"/>
+            <text class="s" x="170" y="110">No</text>
+            <path class="fl" d="M160 200 L160 250"/>
+            <text class="s" x="170" y="230">No</text>
+            <text class="s" x="10" y="338">If also no: script or simple automation</text>
+          </svg>
+        </div>
+
+        <h2 class="rv"><span class="n">02 · THE CHECKLIST</span>Tasks that never need an AI</h2>
+        <div class="grid">
+          <div class="card rv no">
+            <b>Form validation, tax calculation, auth rules</b>
+            Zero room for interpretation: the answer is exact and deterministic.
+            <span class="use">Use: Pure C# or TypeScript code: zero cost, total determinism</span>
+          </div>
+          <div class="card rv no">
+            <b>Calculations, filters, regex, and file scripts</b>
+            Any task without semantic ambiguity belongs strictly in Tier A.
+            <span class="use">Use: Pure code: 0 ms, zero token cost</span>
+          </div>
+          <div class="card rv no">
+            <b>Classifying SQL job failure severity</b>
+            Picking among finite operational categories is classification, not generation.
+            <span class="use">Use: JEV: ultra-fast, zero tokens, fully auditable</span>
+          </div>
+          <div class="card rv no">
+            <b>Detecting transaction volume anomalies</b>
+            The statistical pattern is mathematically predictable.
+            <span class="use">Use: Statistical algorithm with sub-millisecond latency</span>
+          </div>
+          <div class="card rv no">
+            <b>Intercepting vague requests like “add payments”</b>
+            Identifying missing payment providers and methods to ask for clarification.
+            <span class="use">Use: <code>RulesDecisionProvider</code> returning <code>CLARIFY</code> with 0 tokens</span>
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">03 · THE COUNTERPOINT</span>What truly deserves a model</h2>
+        <div class="grid">
+          <div class="card rv">
+            <b>Natural language diagnostics</b>
+            Explaining why an intricate batch job failed by contextualizing stack traces. Requires open-ended reasoning.
+          </div>
+          <div class="card rv">
+            <b>Customer support chatbots</b>
+            Conversational responses backed by a living knowledge base via LLMs with RAG in the AI Gateway.
+          </div>
+          <div class="card rv">
+            <b>Generation and synthesis</b>
+            Prose, architectural documentation, and novel code. Tier C, always with rigorous output validation.
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">04 · IN PRACTICE</span>The workflow that spends tokens only when needed</h2>
+        <div class="flow rv">
+          <b style="color: var(--gold);">Refund Request Flow</b>
+          <span class="fc" style="--i:0">Local Engine (0 ms)</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:1">PROCEED: executes refund</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:2">ESCALATE: human auditor queue</span>
+          <span class="ar">→</span>
+          <span class="fc" style="--i:3">Only freeform text: calls LLM</span>
+        </div>
+        <p class="rv">
+          The application queries the local engine first. The vast majority of known cases resolve immediately on-device, without network trips or token consumption. The LLM becomes the exception, not the rule.
+        </p>
+
+        <h2 class="rv"><span class="n">05 · INFRACTIONS</span>What the architecture explicitly forbids</h2>
+        <ul class="ck rv" style="--x:1">
+          <li>Using an LLM for deterministic logic or mathematical calculation.</li>
+          <li>Calling generative AI inside tight processing loops or recurring jobs.</li>
+          <li>Bypassing the AIJev pattern when the task is pure decision or classification.</li>
+        </ul>
+        <p class="rv">
+          Already have a pipeline invoking a model on every HTTP request? Here is the refactoring prompt suggested in our architectural guide:
+        </p>
+        <div class="code rv">
+          <pre>Analyze the file [path/to/file].
+It currently calls an LLM on every incoming request.
+Refactor using the AI Decision Gate &amp; JEV pattern:
+- extract a local RulesDecisionProvider for frequent cases (0 ms);
+- retain the LLM as a fallback or for the CLARIFY decision;
+- maintain unit tests for the local engine without network mocks.</pre>
+        </div>
+
+        <h2 class="rv"><span class="n">06 · RULE OF THUMB</span>How to tell if you're overusing AI</h2>
+        <p class="rv">
+          A personal heuristic: if you can write a unit test with the exact expected output asserting against a fixed value, you almost certainly do not need an LLM. Our technical guide points to up to 70% of requests resolved locally in predictable workflows. Treat this as a benchmark and measure your domain, because the savings scale directly with how repetitive your traffic is.
+        </p>
+
+        <div class="stats rv">
+          <div><b data-n="3">0</b>questions before the prompt</div>
+          <div><b data-n="5">0</b>tasks that skip AI entirely</div>
+          <div><b data-n="3">0</b>forbidden infractions</div>
+          <div><b data-n="0">0</b>ms latency in known cases</div>
+        </div>
+
+        <blockquote class="rv">
+          The best LLM API call is usually the one you discovered you never needed to make.
+        </blockquote>
+
+      </div>
+
+      <!-- Author Bio Card -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            More than 28 years in software development and architecture. Creator of <strong>AI Second Brain</strong>,
+            pioneer in persistent memory, continuous governance, and AI Decision Gate for autonomous agents.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">View GitHub projects ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navigation Between Articles -->
+      <nav class="article-navigation" aria-label="Other articles">
+        <a href="document-rot-second-brain.html" class="nav-link-card">
+          <span class="nav-link-label">← Previous Article</span>
+          <span class="nav-link-title">Document rot: the silent risk that can destroy any second brain</span>
+        </a>
+        <a href="when-not-to-use-llms.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">See Also →</span>
+          <span class="nav-link-title">When NOT to use an LLM: the decision gate that saves tokens and latency</span>
+        </a>
+      </nav>
+
+      <!-- ── Final CTA & Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="160"
+          height="88">
+        <h3 class="cta-title">See the decision gate in action</h3>
+        <p class="cta-desc">
+          Test the live interactive demo (read-only) or clone the repository. AI Second Brain is distributed under the FSL-1.1-MIT license (source-available / fair-code), free for personal use, research, study, and internal commercial use.
+        </p>
+        <div class="cta-buttons">
+          <a class="cta-btn primary" href="../../demo/index.html" target="_blank" rel="noopener">Open Live Demo</a>
+          <a class="cta-btn secondary" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+            rel="noopener">View on GitHub</a>
+          <a class="cta-btn secondary" href="../../index.html">Official Website</a>
+        </div>
+        <div class="cta-au">
+          Created and maintained with passion by <strong>Alfredo R. Câmara</strong> (<a
+            href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> · <a
+            href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Transforming AI agents into senior software engineers with living memory and continuous governance.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #ArtificialIntelligence #SoftwareEngineering #LLM #Architecture #DevTools #AIAgents #Cursor #ClaudeCode
+      </p>
+
+    </article>
+  </main>
+
+  <!-- ── Standard Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank"
+        rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Persistent Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Interactive Scripts -->
+  <script>
+    (function () {
+      // 1. Canvas with Connected Particles
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+        function rs() {
+          W = cv.width = cv.parentElement.offsetWidth;
+          H = cv.height = cv.parentElement.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function draw(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j];
+              var dx = a.x - b.x;
+              var dy = a.y - b.y;
+              var L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k];
+            var g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, Math.PI * 2);
+            c.fill();
+          }
+
+          if (!rm) requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      }
+
+      // 2. Scroll Reveal Observer (.rv)
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            entry.target.querySelectorAll('[data-n]').forEach(animateCounter);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        observer.observe(el);
+      });
+
+      // 3. Smooth Numeric Counters
+      function animateCounter(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        var duration = 1200;
+
+        function step(timestamp) {
+          if (!start) start = timestamp;
+          var progress = Math.min((timestamp - start) / duration, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 4. Copy Article Text Handler
+      var cpBtn = document.getElementById('cp');
+      if (cpBtn) {
+        cpBtn.onclick = function () {
+          var btn = this;
+          var articleText = document.getElementById('art').innerText;
+          var originalHtml = btn.innerHTML;
+
+          function showSuccess() {
+            btn.innerHTML = '✓ Article copied successfully!';
+            btn.style.borderColor = '#4ade80';
+            btn.style.color = '#4ade80';
+            setTimeout(function () {
+              btn.innerHTML = originalHtml;
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 3000);
+          }
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(articleText).then(showSuccess).catch(fallbackCopy);
+          } else {
+            fallbackCopy();
+          }
+
+          function fallbackCopy() {
+            try {
+              var textarea = document.createElement('textarea');
+              textarea.value = articleText;
+              document.body.appendChild(textarea);
+              textarea.select();
+              document.execCommand('copy');
+              textarea.remove();
+              showSuccess();
+            } catch (err) {
+              btn.textContent = 'Error copying text!';
+            }
+          }
+        };
+      }
+    })();
+  </script>
+  <!-- i18n Support PT ⇄ EN -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script defer src="../../js/i18n.js"></script>
+</body>
+
+</html>
+

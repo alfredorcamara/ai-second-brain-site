@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seu agente de IA tem amnésia? Dê a ele um segundo cérebro — AI Second Brain</title>
+  <meta name="description"
+    content="Memória persistente em Markdown que vira um grafo neural 3D vivo, lido pelo seu agente a cada sessão. Conheça a arquitetura completa do AI Second Brain.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/seu-agente-de-ia-tem-amnesia.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/seu-agente-de-ia-tem-amnesia.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/does-your-ai-agent-have-amnesia.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="Seu agente de IA tem amnésia? Dê a ele um segundo cérebro">
+  <meta property="og:description"
+    content="Memória persistente em Markdown que vira um grafo neural 3D vivo, lido pelo seu agente a cada sessão. Conheça a arquitetura completa do AI Second Brain.">
+  <meta property="og:image" content="../assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Seu agente de IA tem amnésia? Dê a ele um segundo cérebro">
+  <meta name="twitter:description"
+    content="Memória persistente em Markdown que vira um grafo neural 3D vivo, lido pelo seu agente a cada sessão. Conheça a arquitetura completa do AI Second Brain.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Canvas de Partículas no Topo ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Destaque Visual Obrigatório no Título (#e8b84b) ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Barra de Ação Superior (Copiar Artigo) ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Tipografia e Parágrafos do Artigo ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Banner de Imagem ── */
+    .ban {
+      margin: 32px 0;
+    }
+
+    .ban img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .ban figcaption {
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: var(--mut);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Grids de Destaque / Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Diálogos / Comparação de Chats ── */
+    .chats {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin: 24px 0;
+    }
+
+    .chat {
+      border-radius: 14px;
+      padding: 18px;
+      font: 14px/1.55 var(--font-sans);
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .chat h4 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .bad h4 {
+      color: #e5534b;
+    }
+
+    .good h4 {
+      color: #2ea66a;
+    }
+
+    .m {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin: 8px 0;
+      opacity: 0;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+
+    .u {
+      background: rgba(90, 169, 255, 0.12);
+      border: 1px solid rgba(90, 169, 255, 0.25);
+      color: #e2e8f0;
+      margin-left: auto;
+    }
+
+    .a {
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.25);
+      color: #f6f8fb;
+    }
+
+    .chat.in .m {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.9s);
+    }
+
+    @keyframes popChat {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .res {
+      font-size: 13px;
+      margin-top: 14px;
+      font-weight: 600;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Diagramas SVG ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--blue);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    @keyframes plOk {
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    /* ── Ranking de Relevância (.bars, .bar) ── */
+    .bars {
+      margin: 24px 0;
+      font: 14px var(--font-sans);
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .bar span:first-child {
+      width: 110px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .bar i {
+      height: 14px;
+      border-radius: 7px;
+      background: linear-gradient(90deg, #5aa9ff, #e8b84b);
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-block;
+    }
+
+    .bars.in .bar i {
+      width: calc(var(--v) * 30%);
+    }
+
+    .bar span:last-child {
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      font-size: 16px;
+    }
+
+    /* ── Chips do AI Gateway ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      padding: 7px 16px;
+      border-radius: 99px;
+      font-size: 13.5px;
+      color: #cbd5e1;
+      font-family: var(--font-sans);
+    }
+
+    .chip.f {
+      border-color: rgba(232, 184, 75, 0.5);
+      color: #e8b84b;
+      background: rgba(232, 184, 75, 0.08);
+      font-weight: 600;
+    }
+
+    /* ── Bloco de Código com Digitação Simulada ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .ty {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      border-right: 2px solid #e8b84b;
+    }
+
+    .code.in .ty {
+      animation: typ 2.2s steps(40) forwards;
+    }
+
+    .code.in .ty + .ty {
+      animation-delay: 2.4s;
+      animation-duration: 1.3s;
+    }
+
+    @keyframes typ {
+      to {
+        width: var(--w);
+        border-color: transparent;
+      }
+    }
+
+    /* ── Estatísticas com Números que Contam Sozinhos ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Citação em Destaque com Borda Dourada ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Badges de Compatibilidade ── */
+    .bds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+      font: 600 12.5px var(--font-sans);
+    }
+
+    .bd {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      opacity: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .bd span {
+      padding: 6px 11px;
+    }
+
+    .bd .l {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+
+    .bd .v {
+      background: var(--c);
+      color: #fff;
+    }
+
+    .bds.in .bd {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.15s);
+    }
+
+    /* ── CTA Final do Artigo e Tags ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .article-cta-box .cta-desc {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: #aab6d3;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .article-cta-box .cta-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .article-cta-box .cta-actions .btn {
+      margin: 0 !important;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .article-cta-box .cta-actions .btn-primary {
+      background: var(--gold);
+      color: #03060f;
+    }
+
+    .article-cta-box .cta-actions .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(255, 199, 107, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-actions .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid, .chats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .m, .bd, .ty, .dg .ok {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        width: auto !important;
+      }
+      .bar i {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Barra de Navegação Superior (Padrão Oficial do Site) ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Início</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Artigos</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">Demo 3D</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Alternar idioma / Switch language (PT ⇄ EN)"
+        aria-label="Alternar idioma / Switch language" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt active" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt" data-lang-opt="en">EN</span>
+      </button>
+      <a class="nav-cta" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener">
+        ⭐ Star no GitHub
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Efeito de Fundo ── -->
+  <div class="canvas-bg-wrapper">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Conteúdo do Artigo ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Navegação estrutural">
+        <a href="../../index.html">Início</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Amnésia &amp; Segundo Cérebro</span>
+      </nav>
+
+      <!-- Cabeçalho do Artigo -->
+      <header class="article-header">
+        <span class="article-badge">Memória &amp; Arquitetura · 8 min de leitura</span>
+        <h1 class="article-title">Seu agente de IA tem amnésia? <em>Dê a ele um segundo cérebro.</em></h1>
+        <p class="article-lead">
+          Memória persistente em Markdown que vira um grafo neural 3D vivo, lido pelo seu agente a cada sessão. Do problema à arquitetura, do AI Gateway ao Research Lab.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Criador do AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 12 de Outubro de 2026</span>
+            <span>·</span>
+            <span>⚡ Versão v1.5.0 &amp; Governança</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Barra de Ação Superior -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copiar texto do artigo</button>
+      </div>
+
+      <!-- Corpo do Artigo com Todos os Recursos Interativos -->
+      <div class="article-body" id="art">
+
+        <p class="rv">
+          Todo desenvolvedor que trabalha com agentes de IA conhece a cena: você passa 40 minutos alinhando a arquitetura, fecha a janela, volta no dia seguinte e o agente pergunta de novo qual é a stack. Brilhante no raciocínio, mas com amnésia crônica entre conversas. Foi esse atrito que me levou a criar o <b>AI Second Brain</b>: memória persistente em Markdown que vira um grafo neural 3D vivo, lido pelo seu agente a cada sessão. Neste artigo percorro o projeto inteiro, do problema à arquitetura, do AI Gateway ao Research Lab.
+        </p>
+
+        <figure class="ban rv">
+          <img src="../../assets/banner-grafo-3d.webp" width="1983" height="793" alt="Banner do AI Second Brain" loading="lazy">
+          <figcaption>Ideias, skills, documentos, projetos e pesquisa conectados em um grafo neuronal 3D interativo.</figcaption>
+        </figure>
+
+        <h2 class="rv"><span class="n">01 · O PROBLEMA</span>Três custos invisíveis do agente sem memória</h2>
+        
+        <div class="grid">
+          <div class="card rv">
+            <b>Amnésia de contexto</b>
+            Cada nova janela reinicia o modelo. O agente esquece por que escolheu cada biblioteca e refaz erros passados.
+          </div>
+          <div class="card rv">
+            <b>Context drift</b>
+            Sem diretrizes de arquitetura centralizadas, a base de código degrada com padrões conflitantes a cada prompt.
+          </div>
+          <div class="card rv">
+            <b>Desperdício de tokens</b>
+            LLMs caros resolvendo lógica determinística que código simples ou um motor de regras resolveria com latência zero.
+          </div>
+        </div>
+
+        <div class="chats">
+          <div class="chat bad rv">
+            <h4>Sem Segundo Cérebro</h4>
+            <div class="m u" style="--i:0">“Vamos continuar a feature de login que começamos ontem?”</div>
+            <div class="m a" style="--i:1">“Claro! Qual é a stack? Que banco usamos? JWT ou cookies de sessão?”</div>
+            <div class="m u" style="--i:2">“…já expliquei tudo isso ontem. Passamos 40 minutos alinhando a arquitetura.”</div>
+            <div class="res" style="color:#e5534b">~4.850 tokens gastos reexplicando o básico, 35 minutos perdidos e alto risco de desvio arquitetural.</div>
+          </div>
+          <div class="chat good rv">
+            <h4>Com Segundo Cérebro</h4>
+            <div class="m u" style="--i:0">“Vamos continuar a feature de login que começamos ontem?”</div>
+            <div class="m a" style="--i:1">“Li <code>memory/current-state.md</code> e <code>decisions/GLOBAL_DECISIONS.md</code>. O schema Prisma já foi migrado; falta o middleware JWT.”</div>
+            <div class="m a" style="--i:2">“Sigo o padrão de <code>.agents/rules/03-security.md</code>. Posso gerar?”</div>
+            <div class="res" style="color:#2ea66a">0 tokens desperdiçados, contexto 100% preservado e início em 10 segundos.</div>
+          </div>
+        </div>
+        <p class="mut" style="font-size:14px; color: var(--mut); margin-bottom: 24px;">Conversa e números de exemplo ilustrativo, da demonstração do projeto.</p>
+
+        <h2 class="rv"><span class="n">02 · A SOLUÇÃO</span>Um cérebro vivo em quatro camadas</h2>
+        <p class="rv">
+          Zero banco vetorial opaco, zero infraestrutura cara: apenas arquivos Markdown organizados no Git, espelhando um grafo neural biológico.
+        </p>
+
+        <div class="grid">
+          <div class="card rv">
+            <b>01 · rules/</b>
+            A constituição do projeto: segurança OWASP, quando usar IA ou código determinístico e padrões de commit. Ex.: <code>00-core.md</code>, <code>01-ai-decision.md</code>, <code>03-security.md</code>.
+          </div>
+          <div class="card rv">
+            <b>02 · skills/</b>
+            Playbooks passo a passo para tarefas recorrentes. Ex.: <code>ai-decision-gate</code>, <code>new-feature</code>, <code>bug-investigation</code>.
+          </div>
+          <div class="card rv">
+            <b>03 · memory/</b>
+            Estado atual e lições aprendidas: o que funcionou e o que ficou pendente. Ex.: <code>current-state.md</code>, <code>lessons-learned.md</code>.
+          </div>
+          <div class="card rv">
+            <b>04 · decisions/</b>
+            ADRs imutáveis com motivos, alternativas descartadas e trade-offs. Ex.: <code>GLOBAL_DECISIONS.md</code>, <code>001-stack-inicial.md</code>.
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">03 · ARQUITETURA</span>Três mecanismos que impedem o esquecimento</h2>
+        <p class="rv">
+          <b>Hub &amp; satélites.</b> Um hub central guarda governança, regras e memória. Cada repositório satélite (API, app web, mobile) mantém seu código, CI/CD e Docker e se conecta ao cérebro sem duplicar arquivos, via junções NTFS ou symlinks de diretório.
+        </p>
+
+        <!-- SVG 1: Hub & Satélites -->
+        <div class="dg rv">
+          <svg viewBox="0 0 640 230" role="img" aria-label="Hub central conectado a três repositórios satélite">
+            <rect class="h" x="220" y="10" width="200" height="70" rx="12"/>
+            <text x="320" y="42" text-anchor="middle">Cérebro central</text>
+            <text class="s" x="320" y="62" text-anchor="middle">governança · regras · memória</text>
+            <path class="fl" d="M320 80 L120 150"/>
+            <path class="fl" d="M320 80 L320 150"/>
+            <path class="fl" d="M320 80 L520 150"/>
+            <rect class="b" x="50" y="150" width="140" height="62" rx="10"/>
+            <text x="120" y="176" text-anchor="middle">API</text>
+            <text class="s" x="120" y="196" text-anchor="middle">código · CI/CD · Docker</text>
+            <rect class="b" x="250" y="150" width="140" height="62" rx="10"/>
+            <text x="320" y="176" text-anchor="middle">App web</text>
+            <text class="s" x="320" y="196" text-anchor="middle">código · CI/CD · Docker</text>
+            <rect class="b" x="450" y="150" width="140" height="62" rx="10"/>
+            <text x="520" y="176" text-anchor="middle">Mobile</text>
+            <text class="s" x="520" y="196" text-anchor="middle">código · CI/CD · Docker</text>
+          </svg>
+        </div>
+
+        <p class="rv">
+          <b>Portão de decisão.</b> Antes de gastar tokens, o <code>RulesDecisionProvider</code> (0 ms, custo zero) pergunta: a tarefa é determinística e sem ambiguidade semântica? Se sim, código ou regras resolvem. Só o restante vai para um modelo de IA.
+        </p>
+
+        <!-- SVG 2: Portão de Decisão -->
+        <div class="dg rv">
+          <svg viewBox="0 0 640 200" role="img" aria-label="Roteamento entre código e IA">
+            <rect class="b" x="10" y="75" width="100" height="50" rx="10"/>
+            <text x="60" y="105" text-anchor="middle">Tarefa</text>
+            <path class="fl" d="M110 100 L170 100"/>
+            <rect class="h" x="170" y="55" width="180" height="90" rx="12"/>
+            <text x="260" y="95" text-anchor="middle">Determinística e</text>
+            <text x="260" y="115" text-anchor="middle">sem ambiguidade?</text>
+            <path class="fl" d="M350 85 L400 40"/>
+            <path class="fl" d="M350 115 L400 160"/>
+            <text class="s" x="372" y="58">Sim</text>
+            <text class="s" x="372" y="150">Não</text>
+            <rect class="b ok" x="400" y="10" width="230" height="56" rx="10"/>
+            <text x="515" y="35" text-anchor="middle">Código ou regras</text>
+            <text class="s" x="515" y="54" text-anchor="middle">0 ms · custo zero</text>
+            <rect class="b" x="400" y="134" width="230" height="56" rx="10"/>
+            <text x="515" y="159" text-anchor="middle">Modelo de IA (BYOK)</text>
+            <text class="s" x="515" y="178" text-anchor="middle">só quando faz sentido</text>
+          </svg>
+        </div>
+
+        <p class="rv">
+          <b>Ciclo da sessão.</b> Cada sessão começa lendo o estado atual, consulta regras e ADRs durante o trabalho e termina registrando as entregas. A próxima assume exatamente de onde esta parou.
+        </p>
+
+        <!-- SVG 3: Ciclo da Sessão -->
+        <div class="dg rv">
+          <svg viewBox="0 0 640 230" role="img" aria-label="Ciclo de vida da sessão">
+            <path id="lp" class="fl" d="M105 110 L320 110 L535 110 C535 215 105 215 105 110"/>
+            <rect class="b" x="20" y="80" width="170" height="60" rx="10"/>
+            <text x="105" y="106" text-anchor="middle">1 · Prompt Bootstrap</text>
+            <text class="s" x="105" y="124" text-anchor="middle">lê o estado atual</text>
+            <rect class="b" x="235" y="80" width="170" height="60" rx="10"/>
+            <text x="320" y="106" text-anchor="middle">2 · Pergunte ao Cérebro</text>
+            <text class="s" x="320" y="124" text-anchor="middle">Ctrl+K · regras e ADRs</text>
+            <rect class="h" x="450" y="80" width="170" height="60" rx="10"/>
+            <text x="535" y="106" text-anchor="middle">3 · Session Capture</text>
+            <text class="s" x="535" y="124" text-anchor="middle">registra as entregas</text>
+            <circle r="7" fill="#e8b84b">
+              <animateMotion dur="6s" repeatCount="indefinite">
+                <mpath href="#lp"/>
+              </animateMotion>
+            </circle>
+          </svg>
+        </div>
+
+        <h2 class="rv"><span class="n">04 · PERGUNTE AO CÉREBRO</span>Busca determinística, sem alucinar fontes</h2>
+        <p class="rv">
+          Com <code>Ctrl+K</code>, um motor RAG inspirado em BM25/TF-IDF recupera os trechos mais densos do cofre e a IA (sua chave) sintetiza a resposta com links clicáveis para os arquivos originais, seguindo a diretriz de Zero Fabricação. Os documentos de governança pesam mais no ranking:
+        </p>
+        <div class="bars rv">
+          <div class="bar"><span>ADRs</span><i style="--v:2.4"></i><span>2,4x</span></div>
+          <div class="bar"><span>Estado atual</span><i style="--v:2.2"></i><span>2,2x</span></div>
+          <div class="bar"><span>Contratos</span><i style="--v:2.0"></i><span>2,0x</span></div>
+          <div class="bar"><span>Regras</span><i style="--v:1.8"></i><span>1,8x</span></div>
+        </div>
+        <p class="rv">
+          <b>Progressive Disclosure.</b> Para evitar o efeito “Lost in the Middle”, a síntese prioriza de 5 a 7 documentos. Com um clique você expande até 12 fontes adicionais, inspeciona cada arquivo ou foca direto no grafo 3D.
+        </p>
+
+        <h2 class="rv"><span class="n">05 · AI GATEWAY</span>Inteligência sem amarras (BYOK)</h2>
+        <p class="rv">
+          Um gateway único, configurável por projeto, com 7 provedores nativos e catálogo 100% dinâmico: ao conectar sua chave, a interface consulta a API oficial do provedor em tempo real e agrupa os modelos em três perfis. Nada de listas fixas que envelhecem em semanas.
+        </p>
+        <div class="chips rv">
+          <span class="chip f">Groq · tier gratuito</span>
+          <span class="chip f">Google Gemini · tier gratuito</span>
+          <span class="chip">OpenAI</span>
+          <span class="chip">Anthropic Claude</span>
+          <span class="chip">DeepSeek</span>
+          <span class="chip">OpenRouter</span>
+          <span class="chip f">Ollama · 100% offline</span>
+        </div>
+        <div class="grid">
+          <div class="card rv">
+            <b>⚡ Velocidade &amp; Flash</b>
+            Latência ultra-baixa para buscas rápidas, testes ágeis e geração contínua.
+          </div>
+          <div class="card rv">
+            <b>⚖️ Equilibrado</b>
+            Ponto ideal entre precisão, contexto e cadência para refinar especificações técnicas.
+          </div>
+          <div class="card rv">
+            <b>🧠 Raciocínio Profundo</b>
+            Modelos com cadeia de pensamento para decisões arquiteturais complexas.
+          </div>
+        </div>
+        <p class="rv">
+          <b>Comece de graça, sem cartão.</b> O Groq oferece tier gratuito com <code>llama-3.3-70b-versatile</code> (campeão de velocidade). O Google Gemini tem chave gratuita pelo AI Studio com <code>gemini-2.5-flash</code> (campeão de contexto). E o Ollama roda <code>qwen2.5-coder</code> ou <code>llama3.2</code> localmente, com privacidade absoluta e custo zero.
+        </p>
+
+        <h2 class="rv"><span class="n">06 · RESEARCH LAB</span>Um laboratório que pesquisa sozinho</h2>
+        <p class="rv">
+          Você descreve o tema, refina o prompt com IA (documento vivo, versionado em v1, v2…) e o motor gera duas camadas de arquivos:
+        </p>
+        <div class="grid">
+          <div class="card rv">
+            <b>Knowledge</b>
+            Teoria de engenharia, arquitetura de sistemas, trade-offs e boas práticas em <code>RESEARCH/&lt;tema&gt;/knowledge/</code>.
+          </div>
+          <div class="card rv">
+            <b>Actionable</b>
+            Schemas SQL Server e Prisma, controllers TypeScript/Node.js e testes automatizados em <code>RESEARCH/&lt;tema&gt;/actionable/</code>.
+          </div>
+        </div>
+        <p class="rv">
+          Feito para não quebrar: lê o tempo de espera informado pelo provedor e retenta sozinho em caso de rate limit; mantém cadência preventiva entre arquivos; retoma de onde parou sem gastar tokens refazendo; mostra progresso em tempo real (SSE) e faz fallback entre modelos com retentativas exponenciais. O motor local JEV detecta ambiguidades com chips de 1 clique e botão Desfazer.
+        </p>
+
+        <h2 class="rv"><span class="n">07 · QUICKSTART</span>Instale em 2 minutos, conecte um projeto em menos de 3</h2>
+        <div class="code rv">
+          <span class="ty" style="--w:61ch">$ git clone https://github.com/alfredorcamara/ai-second-brain</span>
+          <span class="ty" style="--w:34ch">$ cd ai-second-brain &amp;&amp; npm start</span>
+        </div>
+        <p class="mut" style="font-size:14px; color: var(--mut); margin-bottom: 20px;">Requisitos: Node.js 18+ e Git. Docker não é obrigatório.</p>
+
+        <div class="grid">
+          <div class="card rv">
+            <b>1 · Entrada dual</b>
+            Criar do zero com <code>git init</code> automático, ou vincular um repositório local sem duplicar arquivos. Modo Express (50 ms) ou Sabatina Grill (IA).
+          </div>
+          <div class="card rv">
+            <b>2 · Sabatina com IA</b>
+            De 3 a 4 perguntas cirúrgicas sobre a sua stack (até 8) para blindar a arquitetura antes do código.
+          </div>
+          <div class="card rv">
+            <b>3 · Contratos vivos</b>
+            PROJECT, ARCH, STATE e ADR-0001 sintetizados com telemetria em tempo real. Você aprova antes de gravar no disco.
+          </div>
+        </div>
+
+        <h2 class="rv"><span class="n">08 · CONFIANÇA</span>Governança, segurança e zero lock-in</h2>
+        <div class="grid">
+          <div class="card rv">
+            <b>Session Capture seguro</b>
+            Padrão Draft &amp; Commit: a IA inspeciona commits, sanitiza <code>.env</code> e credenciais, e nada é gravado sem a sua aprovação.
+          </div>
+          <div class="card rv">
+            <b>Isolamento em 2 níveis</b>
+            A memória do framework fica separada da memória de cada projeto, que vive em <code>projects/&lt;nome&gt;/</code>.
+          </div>
+          <div class="card rv">
+            <b>Agnóstico de stack</b>
+            Node, Python, Go, C#, Rust, Flutter, React ou SQL. O cérebro opera sobre raciocínio e governança, não sobre sintaxe.
+          </div>
+          <div class="card rv">
+            <b>Backups auditáveis</b>
+            Exportação em Markdown legível por humanos e JSON estruturado em <code>projects/&lt;nome&gt;/BACKUPS/</code>.
+          </div>
+          <div class="card rv">
+            <b>Releases com tag</b>
+            Cada versão oficial vira uma tag Git estável (hoje a v1.5.0), e <code>git pull</code> atualiza regras, skills e notas.
+          </div>
+          <div class="card rv">
+            <b>Zero lock-in</b>
+            Sem banco proprietário. Tudo é Markdown versionado, auditável por pessoas e legível por qualquer IA.
+          </div>
+        </div>
+
+        <div class="stats rv">
+          <div><b data-n="7">0</b>provedores de IA</div>
+          <div><b data-n="4">0</b>camadas de memória</div>
+          <div><b data-n="7">0</b>ferramentas compatíveis</div>
+          <div><b data-n="0">0</b>bancos vetoriais</div>
+          <div><b data-n="100" data-s="%">0</b>Git versionado</div>
+        </div>
+
+        <blockquote class="rv">
+          Desenvolver com agentes sem memória persistente é como contratar um engenheiro sênior novo a cada manhã e passar metade do dia ensinando a mesma arquitetura.
+        </blockquote>
+
+        <h2 class="rv"><span class="n">09 · COMPATIBILIDADE &amp; LICENÇA</span>Compatível com o seu agente. Transparente na licença.</h2>
+        <div class="bds rv">
+          <span class="bd" style="--i:0;--c:#000"><span class="l">Cursor</span><span class="v">Compatível</span></span>
+          <span class="bd" style="--i:1;--c:#d97706"><span class="l">Claude Code</span><span class="v">Compatível</span></span>
+          <span class="bd" style="--i:2;--c:#3b82f6"><span class="l">Google Antigravity</span><span class="v">Nativo</span></span>
+          <span class="bd" style="--i:3;--c:#0ea5c6"><span class="l">Windsurf</span><span class="v">Compatível</span></span>
+          <span class="bd" style="--i:4;--c:#111"><span class="l">GitHub Copilot</span><span class="v">Compatível</span></span>
+          <span class="bd" style="--i:5;--c:#6d28d9"><span class="l">Cline</span><span class="v">Compatível</span></span>
+          <span class="bd" style="--i:6;--c:#047857"><span class="l">Codex</span><span class="v">Compatível</span></span>
+        </div>
+
+        <p class="rv">
+          O sistema adota o padrão aberto <code>AGENTS.md</code> e gera pontes nativas no seu repositório: <code>.cursorrules</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>.windsurfrules</code>, <code>.clinerules</code> e <code>copilot-instructions.md</code>. Assim a governança continua ativa em qualquer editor.
+        </p>
+
+        <p class="rv">
+          O AI Second Brain é distribuído sob a licença <b>FSL-1.1-MIT</b> (<i>Functional Source License</i>, modelo <i>source-available / fair-code</i>). É livre e gratuito para uso pessoal, pesquisa, estudo e uso produtivo interno. Para uso comercial concorrente ou parcerias, consulte o LICENSE e o CLA no repositório.
+        </p>
+
+      </div>
+
+      <!-- Card do Autor -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            Mais de 28 anos em desenvolvimento e arquitetura de software. Criador do <strong>AI Second Brain</strong>,
+            pioneiro em memória persistente, governança contínua e AI Decision Gate para agentes autônomos.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Ver projetos no GitHub ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navegação Entre Artigos -->
+      <nav class="article-navigation" aria-label="Outros artigos">
+        <a href="conhecimento-e-acao-duas-camadas.html" class="nav-link-card">
+          <span class="nav-link-label">← Artigo Anterior</span>
+          <span class="nav-link-title">Conhecimento e ação em duas camadas</span>
+        </a>
+        <a href="document-rot-risco-segundo-cerebro.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">Próximo Artigo →</span>
+          <span class="nav-link-title">Document rot: o risco que pode matar qualquer segundo cérebro</span>
+        </a>
+      </nav>
+
+      <!-- ── CTA Final e Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210"
+          height="115">
+        <h3 class="cta-title">Teste agora, sem instalar nada</h3>
+        <p class="cta-desc">
+          A demo roda o dashboard real com um vault de exemplo, em modo somente leitura: explore o grafo 3D e pressione Ctrl+K.
+        </p>
+        <div class="cta-actions">
+          <a href="../../demo/index.html" target="_blank" rel="noopener" class="btn btn-primary">
+            🌐 Abrir Demo 3D ao Vivo
+          </a>
+          <a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener"
+            class="btn btn-secondary">
+            ⭐ Ver no GitHub
+          </a>
+        </div>
+        <div class="cta-au">
+          Criado e mantido com paixão por <strong>Alfredo R. Câmara</strong>
+          (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> ·
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Transformando agentes de IA em engenheiros de software sêniores com memória viva e governança contínua.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #InteligenciaArtificial #AgentesDeIA #EngenhariaDeSoftware #LLM #DevTools #ClaudeCode #Cursor #Markdown
+      </p>
+
+    </article>
+  </main>
+
+  <!-- ── Rodapé Padrão do Blog ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">Demo 3D</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank"
+        rel="noopener">Discussões</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Criador: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — O Sistema Operacional de Memória para Agentes de IA</span>
+      <span class="footer-sep">·</span>
+      <span>Criado por <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Código Aberto sob Licença FSL-1.1-MIT</span>
+    </div>
+  </footer>
+
+  <!-- Scripts: i18n & Interatividade -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script>
+    (function () {
+      // 1. Partículas no Topo
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Contadores
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Botão de Copiar Artigo
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Texto copiado!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copiar texto do artigo';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Não foi possível copiar automaticamente. Selecione e copie manualmente.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+
+</html>
+

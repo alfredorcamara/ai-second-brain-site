@@ -1,4 +1,5 @@
-// Tradutor leve PT ⇄ EN: troca textos pelo dicionário (js/i18n.dict.js) sem recarregar a página.
+// Tradutor leve PT ⇄ EN: troca textos pelo dicionário (js/i18n.dict.js) sem recarregar a página,
+// ou redireciona entre versões de idioma quando existirem links <link rel="alternate" hreflang="...">.
 // Idioma inicial: ?lang=en|pt  →  escolha salva  →  idioma do navegador.
 (() => {
     'use strict';
@@ -11,7 +12,10 @@
     const inl = c => INLINE.has(c.tagName.toUpperCase()) && !(c.tagName === 'A' && c.classList.contains('btn'));
     const isLeaf = el => { const k = [...el.children]; return k.every(inl) && (!k.some(c => c.tagName === 'SPAN' || c.tagName === 'A') || hasText(el)); };
     const orig = new WeakMap(), missing = new Set();
-    let lang = 'pt';
+    
+    const docLang = (document.documentElement.lang || 'pt').toLowerCase().startsWith('en') ? 'en' : 'pt';
+    const hasAlternateLinks = !!document.querySelector('link[rel="alternate"][hreflang]');
+    let lang = docLang;
 
     function txt(n, en) {
         if (en) { const k = norm(n.nodeValue); if (!k) return; if (D[k]) { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = D[k].replace(/<[^>]+>/g, ''); } else missing.add(k); }
@@ -51,7 +55,36 @@
         b.setAttribute('data-active-lang', target);
     }
     function set(l, silent) {
-        const en = l === 'en'; if (l === lang && !silent) return; lang = en ? 'en' : 'pt';
+        const en = l === 'en';
+        
+        // Se a página atual possui link alternativo para o idioma solicitado e não é inicialização silenciosa
+        if (!silent && hasAlternateLinks && l !== docLang) {
+            const targetHreflang = en ? 'en' : 'pt-BR';
+            const altLink = document.querySelector(`link[rel="alternate"][hreflang="${targetHreflang}"], link[rel="alternate"][hreflang="${l}"]`);
+            if (altLink && altLink.href) {
+                try { localStorage.setItem(KEY, l); } catch (_) { }
+                if (window.location.protocol === 'file:') {
+                    const match = altLink.href.match(/\/blog\/(pt|en)\/(.*)$/i);
+                    if (match) {
+                        const targetFolder = match[1];
+                        const targetFile = match[2] || 'index.html';
+                        window.location.href = `../${targetFolder}/${targetFile}`;
+                        return;
+                    }
+                }
+                window.location.href = altLink.href;
+                return;
+            }
+        }
+
+        if (hasAlternateLinks) {
+            // Em páginas com rotas dedicadas por idioma, mantemos a linguagem do documento
+            updateToggleUi(docLang);
+            return;
+        }
+
+        if (l === lang && !silent) return; 
+        lang = en ? 'en' : 'pt';
         try { localStorage.setItem(KEY, lang); } catch (_) { }
         document.documentElement.lang = en ? 'en' : 'pt-BR';
         const t = document.querySelector('title');
@@ -70,13 +103,18 @@
         const opt = e.target.closest('[data-lang-opt]');
         if (opt) {
             const clickedLang = opt.getAttribute('data-lang-opt');
-            if (clickedLang && clickedLang !== lang) {
-                set(clickedLang);
+            if (clickedLang) {
+                set(clickedLang, false);
                 return;
             }
         }
-        set(lang === 'en' ? 'pt' : 'en');
+        set(lang === 'en' ? 'pt' : 'en', false);
     });
-    if (initial === 'en') set('en', true);
-    else updateToggleUi('pt');
+    
+    if (hasAlternateLinks) {
+        updateToggleUi(docLang);
+    } else {
+        if (initial === 'en') set('en', true);
+        else updateToggleUi('pt');
+    }
 })();

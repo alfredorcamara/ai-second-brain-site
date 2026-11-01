@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blog — Articles &amp; Insights | AI Second Brain</title>
+  <meta name="description"
+    content="In-depth reflections on architecture, governance, drastic token savings, and ending memory amnesia in AI agents.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/">
+  <meta name="theme-color" content="#03060f">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:title" content="Articles &amp; Insights — AI Second Brain">
+  <meta property="og:description"
+    content="In-depth reflections on architecture, governance, drastic token savings, and ending memory amnesia in AI agents.">
+  <meta property="og:image" content="../assets/og-image.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="../../index.html#problema">Problem</a>
+      <a href="../../index.html#arquitetura">Architecture</a>
+      <a href="../../index.html#ai-gateway">AI Gateway</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="index.html" style="color: var(--gold); font-weight: 600;">Blog</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Switch language / Alternar idioma (EN ⇄ PT)"
+        aria-label="Switch language / Alternar idioma" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star the repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Blog Hero ── -->
+  <header class="blog-hero">
+    <div class="blog-eyebrow">
+      <span>AI Second Brain · Articles &amp; Engineering</span>
+    </div>
+    <h1>Articles &amp; <em>Insights</em></h1>
+    <p>
+      Deep reflections on architecture, governance, token optimization, and ending memory amnesia in autonomous AI agents.
+    </p>
+
+    <!-- Category Filters -->
+    <div class="blog-filters" role="tablist" aria-label="Filter articles by topic">
+      <button class="filter-btn active" data-filter="all" type="button">All Articles</button>
+      <button class="filter-btn" data-filter="custo" type="button">Cost &amp; Decision</button>
+      <button class="filter-btn" data-filter="arquitetura" type="button">Architecture</button>
+      <button class="filter-btn" data-filter="memoria" type="button">Memory &amp; Risks</button>
+    </div>
+  </header>
+
+  <!-- ── Articles Grid ── -->
+  <main class="blog-main">
+    <div class="blog-grid" id="articles-grid">
+
+      <!-- Article: 0 ms and zero cost -->
+      <a href="zero-ms-and-zero-cost.html" class="card-blog" data-category="custo"
+        title="Read article: 0 ms and zero cost: the tasks you shouldn't send to an AI">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">0 ms &amp; zero cost:<br>tasks without AI</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Cost · 5 min read</span>
+          <h2 class="card-heading">0 ms and zero cost: the tasks you shouldn't send to an AI</h2>
+          <p class="card-snippet">
+            The most valuable question in AI development isn't "which model should I use?", but "do I need a model here?". The practical playbook to save tokens and latency.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 22, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 1: When NOT to use LLMs -->
+      <a href="when-not-to-use-llms.html" class="card-blog" data-category="custo"
+        title="Read article: When NOT to use an LLM">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">When NOT to use LLMs:<br>the decision gate</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Cost · 6 min read</span>
+          <h2 class="card-heading">When NOT to use an LLM: the decision gate that saves tokens and latency</h2>
+          <p class="card-snippet">
+            Deterministic, decision, or generation: the 3 tiers to decide when to invoke a model and stop paying token costs for business rules.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 20, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 2: Why vibe coding dies at 3 months -->
+      <a href="why-vibe-coding-dies.html" class="card-blog" data-category="arquitetura"
+        title="Read article: Why vibe coding typically dies at 3 months">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Why vibe coding<br>dies at 3 months</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Architecture · 8 min read</span>
+          <h2 class="card-heading">Why vibe coding typically dies at 3 months</h2>
+          <p class="card-snippet">
+            The technical hangover of coding purely via chat, and how structuring a persistent second brain prevents premature codebase entropy.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 18, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 3: Document rot -->
+      <a href="document-rot-second-brain.html" class="card-blog" data-category="memoria"
+        title="Read article: Document rot: the silent risk that can destroy any second brain">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Document rot:<br>the silent brain killer</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Memory &amp; Risks · 7 min read</span>
+          <h2 class="card-heading">Document rot: the silent risk that can destroy any second brain</h2>
+          <p class="card-snippet">
+            What happens when code evolves but architectural decisions are left behind. Discover the 3 defenses designed to shield AI memory.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 15, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 4: Amnesia and Second Brain -->
+      <a href="does-your-ai-agent-have-amnesia.html" class="card-blog" data-category="memoria"
+        title="Read article: Does your AI agent have amnesia? Give it a second brain">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Does your agent have amnesia?<br>Give it a second brain</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Memory &amp; Architecture · 8 min read</span>
+          <h2 class="card-heading">Does your AI agent have amnesia? Give it a second brain</h2>
+          <p class="card-snippet">
+            Persistent Markdown memory turned into an interactive 3D neural graph, ingested by your agent every session. Explore the complete architecture.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 12, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 5: Knowledge and Action -->
+      <a href="knowledge-and-action-two-layers.html" class="card-blog" data-category="arquitetura"
+        title="Read article: Knowledge and action in two layers: how to organize technical research for AI agents">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Knowledge and action<br>in two layers</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Architecture · 6 min read</span>
+          <h2 class="card-heading">Knowledge and action in two layers: how to organize technical research for AI agents</h2>
+          <p class="card-snippet">
+            How decoupling research between knowledge/ and actionable/ avoids the "Lost in the Middle" syndrome in AI agents.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 10, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 6: Resilient AI research -->
+      <a href="resilient-ai-research-resuming-jobs.html" class="card-blog" data-category="custo"
+        title="Read article: AI research that resumes where it left off and never spends tokens twice">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Resilient AI research:<br>resume without waste</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Cost &amp; Resilience · 5 min read</span>
+          <h2 class="card-heading">AI research that resumes where it left off and never spends tokens twice</h2>
+          <p class="card-snippet">
+            Long automated research workflows crash due to rate limits or network hiccups. Here are 5 principles to fail gracefully and never pay twice for the same token.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 08, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 7: Research Lab: self-writing documentation -->
+      <a href="research-lab-self-writing-documentation.html" class="card-blog" data-category="arquitetura"
+        title="Read article: An autonomous lab that writes your project's technical documentation on its own">
+        <div class="card-cover">
+          <div class="card-cover-overlay">
+            <h3 class="card-cover-title">Self-writing docs:<br>the autonomous lab</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-meta-tag">Autonomy &amp; Docs · 5 min read</span>
+          <h2 class="card-heading">An autonomous lab that writes your project's technical documentation on its own</h2>
+          <p class="card-snippet">
+            Turn ephemeral AI chat sessions into durable technical documentation, versioned in two layers and integrated directly into the project's neural graph.
+          </p>
+          <div class="card-foot">
+            <span class="card-date">📅 Oct 05, 2026</span>
+            <span class="card-action-link">Read article ↗</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <!-- ── Call to Action Banner ── -->
+  <section class="blog-cta-banner">
+    <div class="blog-cta-box">
+      <h3>Give your project a living, persistent memory</h3>
+      <p>
+        <strong>AI Second Brain</strong> is 100% open-source, agnostic, and seamlessly compatible with Cursor, Claude Code, Google Antigravity, Windsurf, and any AI agent.
+      </p>
+      <div class="blog-cta-actions">
+        <a class="btn primary" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener">
+          <span>View on GitHub ⭐</span>
+        </a>
+        <a class="btn ghost" href="../../demo/index.html" target="_blank" rel="noopener">
+          <span>Explore Interactive 3D Graph 🔭</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Standard Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank" rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Persistent Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener" class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Filter Interaction Script -->
+  <script>
+    (function () {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const cards = document.querySelectorAll('.card-blog');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const filter = btn.getAttribute('data-filter');
+
+          cards.forEach(card => {
+            if (filter === 'all' || card.getAttribute('data-category') === filter) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+
+  <script defer src="../../js/i18n.dict.js"></script>
+  <script defer src="../../js/i18n.js"></script>
+</body>
+
+</html>
+

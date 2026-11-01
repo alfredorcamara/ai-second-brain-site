@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why vibe coding typically dies at 3 months — AI Second Brain</title>
+  <meta name="description"
+    content="The technical hangover of coding purely via chat, and how structuring a persistent second brain prevents premature codebase entropy.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/why-vibe-coding-dies.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain/blog/pt/por-que-vibe-coding-morre.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain/blog/en/why-vibe-coding-dies.html">
+  <meta name="theme-color" content="#03060f">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Site Stylesheets -->
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+
+  <style>
+    /* ── Particle Canvas Background ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Title Gold Highlight ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Action Bar ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      background: rgba(255, 199, 107, 0.08);
+      border: 1px solid rgba(255, 199, 107, 0.3);
+      color: var(--gold);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-article-btn:hover {
+      background: rgba(255, 199, 107, 0.18);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 199, 107, 0.2);
+    }
+
+    /* ── Typography & Headings ── */
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: clamp(22px, 3.2vw, 28px);
+      font-weight: 700;
+      margin: 2.4em 0 0.8em;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .article-body h2 .n {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* ── Grid & Cards ── */
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      margin: 20px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--fg-dim);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 199, 107, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── SVG Diagrams ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 13px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 11.5px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(255, 199, 107, 0.12);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--cyan);
+      stroke-width: 2.2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to { stroke-dashoffset: -12; }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    .dg circle.pn {
+      fill: var(--gold);
+      animation: plOk 2s infinite;
+      animation-delay: calc(var(--i) * 0.5s);
+    }
+
+    @keyframes plOk {
+      50% { opacity: 0.45; }
+    }
+
+    .dg .ln {
+      fill: none;
+      stroke-width: 3;
+      stroke-dasharray: 900;
+      stroke-dashoffset: 900;
+    }
+
+    .dg.in .ln {
+      animation: drwLine 2.6s ease-out forwards;
+    }
+
+    .dg .ax {
+      stroke: var(--line);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    @keyframes drwLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* ── Flow Chips ── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+      font: 14px var(--font-sans);
+    }
+
+    .flow b {
+      width: 100%;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .fc {
+      opacity: 0;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      color: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .flow.in .fc {
+      animation: popMsg 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.35s);
+    }
+
+    .ar {
+      color: var(--mut);
+      font-weight: 700;
+    }
+
+    @keyframes popMsg {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Stats Counters ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Code Blocks ── */
+    .code {
+      background: #040814;
+      color: #cfe3ff;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font: 13.5px/1.6 var(--font-mono);
+      margin: 24px 0;
+      overflow-x: auto;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .ty {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      border-right: 2px solid var(--gold);
+    }
+
+    .code.in .ty {
+      animation: typCmd 2.2s steps(40) forwards;
+    }
+
+    .code.in .ty + .ty {
+      animation-delay: 2.2s;
+    }
+
+    @keyframes typCmd {
+      to {
+        width: var(--w);
+        border-color: transparent;
+      }
+    }
+
+    .code pre {
+      margin: 0;
+      font: inherit;
+      white-space: pre;
+    }
+
+    /* ── Comparison Table ── */
+    .tb {
+      width: 100%;
+      border-collapse: collapse;
+      font: 14px/1.5 var(--font-sans);
+      margin: 20px 0;
+    }
+
+    .tb th, .tb td {
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .tb th {
+      background: rgba(255, 199, 107, 0.08);
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .tb td {
+      background: rgba(13, 20, 38, 0.6);
+      color: var(--fg-dim);
+    }
+
+    /* ── Blockquote ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Article CTA Box ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans) !important;
+      font-size: 25px !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      margin: 0 0 14px 0 !important;
+      text-align: center !important;
+      width: 100% !important;
+      letter-spacing: -0.01em;
+    }
+
+    .article-cta-box .cta-desc {
+      color: #aab6d3;
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 660px;
+      margin: 0 auto 28px auto;
+      font-family: var(--font-sans);
+      text-align: center;
+    }
+
+    .article-cta-box .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+    .article-cta-box .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 14.5px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .article-cta-box .cta-btn.primary {
+      background: var(--gold);
+      color: #03060f;
+      box-shadow: 0 4px 16px rgba(255, 199, 107, 0.3);
+    }
+
+    .article-cta-box .cta-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 199, 107, 0.45);
+    }
+
+    .article-cta-box .cta-btn.secondary {
+      background: rgba(13, 20, 38, 0.85);
+      color: #fff;
+      border: 1px solid #3b4a72;
+    }
+
+    .article-cta-box .cta-btn.secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .fc, .ty, .dg .ln {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        stroke-dashoffset: 0 !important;
+        width: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain">
+      <img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165"
+        height="90" fetchpriority="high" decoding="async">
+    </a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Switch language / Alternar idioma (EN ⇄ PT)"
+        aria-label="Switch language / Alternar idioma" data-no-i18n>
+        <span class="lang-globe">🌐</span>
+        <span class="lang-opt" data-lang-opt="pt">PT</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="btn sm star-nav-btn" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+        rel="noopener" title="Star repository on GitHub">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+
+  <!-- ── Particle Canvas Background ── -->
+  <div class="canvas-bg-wrapper" aria-hidden="true">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <!-- ── Article Container ── -->
+  <main class="article-page">
+    <article class="article-shell">
+
+      <!-- Breadcrumbs -->
+      <nav class="article-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../../index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="index.html">Blog</a>
+        <span class="sep">/</span>
+        <span class="current">Architecture &amp; Governance</span>
+      </nav>
+
+      <!-- Article Header -->
+      <header class="article-header">
+        <span class="article-badge">Architecture &amp; Governance · 8 min read</span>
+        <h1 class="article-title">Why vibe coding <em>typically dies</em> at 3 months: how I structured a second brain for AI agents</h1>
+        <p class="article-lead">
+          The technical hangover of coding purely via chat, and how structuring a persistent second brain prevents premature codebase entropy.
+        </p>
+
+        <div class="article-author-row">
+          <div class="author-info">
+            <div class="creator-avatar sm">
+              <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+                onerror="this.style.display='none'">
+              <div class="creator-avatar-fallback">AC</div>
+            </div>
+            <div class="author-details">
+              <span class="author-name">Alfredo R. Câmara</span>
+              <span class="author-role">Creator of AI Second Brain</span>
+            </div>
+          </div>
+          <div class="article-specs">
+            <span>📅 October 18, 2026</span>
+            <span>·</span>
+            <span>⚡ Engineering Reflection &amp; Memory</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Top Action Row -->
+      <div class="article-action-row">
+        <button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button>
+      </div>
+
+      <!-- Article Body -->
+      <div class="article-body" id="art">
+        <p class="rv">In 2023 and 2024, the euphoria of vibe coding—freely prompting an AI assistant without upfront planning, schemas, or documentation—swept the tech industry. In just a few hours, a working prototype was up and running. But in real-world software lifecycles spanning 3 to 6 months or more, this approach almost invariably implodes. It was this architectural hangover that prompted me to engineer <b>AI Second Brain</b>: a persistent Markdown-based operating system for AI agents.</p>
+
+        <h2 class="rv"><span class="n">01 · THE CONTEXT</span>From loose chat to memory and governance</h2>
+        <div class="dg rv"><svg viewBox="0 0 700 150" role="img" aria-label="Evolution of AI-assisted software development">
+                <path class="fl" d="M100 40 L610 40" />
+                <circle class="pn" style="--i:0" cx="100" cy="40" r="9" /><text x="100" y="78" text-anchor="middle"
+                    style="fill:var(--acc)">2022–23</text><text x="100" y="100" text-anchor="middle">Loose
+                    Chat</text><text class="s" x="100" y="120" text-anchor="middle">isolated snippets</text>
+                <circle class="pn" style="--i:1" cx="270" cy="40" r="9" /><text x="270" y="78" text-anchor="middle"
+                    style="fill:var(--acc)">2023–24</text><text x="270" y="100" text-anchor="middle">Vibe
+                    Coding</text><text class="s" x="270" y="120" text-anchor="middle">rapid tech debt</text>
+                <circle class="pn" style="--i:2" cx="440" cy="40" r="9" /><text x="440" y="78" text-anchor="middle"
+                    style="fill:var(--acc)">2024–25</text><text x="440" y="100" text-anchor="middle">Local
+                    Rules</text><text class="s" x="440" y="120" text-anchor="middle">.cursorrules &amp; AGENTS.md</text>
+                <circle class="pn" style="--i:3" cx="610" cy="40" r="9" /><text x="610" y="78" text-anchor="middle"
+                    style="fill:var(--acc)">2025–26</text><text x="610" y="100" text-anchor="middle">Memory &amp;
+                    Governance</text><text class="s" x="610" y="120" text-anchor="middle">hubs, ADRs, controlled costs</text>
+            </svg></div>
+        <p class="rv">Each evolution resolved the previous bottleneck while revealing a new constraint. Today, the industry is transitioning past “look what AI generated in 5 minutes” to the question that actually determines survival: how do we keep this codebase maintainable over 6 months?</p>
+
+        <h2 class="rv"><span class="n">02 · THE COLLAPSE</span>Three forces that crush vibe coding</h2>
+        <div class="grid">
+            <div class="card rv"><b>1 · AI-Accelerated Entropy</b>A human engineer accumulates technical debt at typing speed. An autonomous agent with multi-file edit capabilities can introduce thousands of unvetted lines in minutes: rewriting existing utility classes, switching auth libraries midway, and dropping error handling.</div>
+            <div class="card rv"><b>2 · The Giant Window Fallacy</b>Despite massive context windows, LLMs suffer from the “Lost in the Middle” phenomenon and soaring inference costs. Dumping hundreds of thousands of tokens per minor commit is economically and architecturally unsustainable. Surgical, curated context always wins.</div>
+            <div class="card rv"><b>3 · Amnesia of the “Why”</b>Git records what code changed, never why architectural trade-offs were made. Without immutable records, the next agent wipes out deliberate micro-optimizations under the guise of “clean refactoring”.</div>
+        </div>
+        <div class="dg rv"><svg viewBox="0 0 680 220" role="img"
+                aria-label="Conceptual illustration of technical debt accumulation over time">
+                <path class="ax" d="M50 20 L50 190 L650 190" /><text class="s" x="56" y="16">tech debt</text><text
+                    class="s" x="650" y="208" text-anchor="end">time →</text>
+                <path class="ln" stroke="#e5534b" d="M50 185 L200 165 L350 110 L500 55 L650 22" />
+                <path class="ln" stroke="var(--blue)" d="M50 185 L250 172 L450 152 L650 128" />
+                <path class="ln" stroke="#e8b84b" d="M50 185 L250 175 L450 162 L650 148" />
+                <text class="s" x="640" y="14" text-anchor="end" style="fill:#e5534b">AI without rules or
+                    memory</text><text class="s" x="640" y="120" text-anchor="end"
+                    style="fill:var(--blue)">human development</text><text class="s" x="640" y="170"
+                    text-anchor="end" style="fill:var(--acc)">AI with second brain</text>
+            </svg></div>
+        <p class="mut" style="font-size:14px">Conceptual illustration representing the thesis; not empirical telemetry data.</p>
+
+        <h2 class="rv"><span class="n">03 · THE REMEDY</span>Five core architectural pillars</h2>
+        <div class="grid">
+            <div class="card rv"><b>Cross-Session State</b><code>CURRENT_STATE.md</code> stores active tasks, completed milestones, and blockers. Instead of wasting 15 minutes context-priming your agent on Monday, its first mandatory action is reading current state.</div>
+            <div class="card rv"><b>Governance &amp; Routing</b>The agent validates requirements before invoking an LLM: is it deterministic, a rules-based decision, or genuine natural language generation? Lower latency, lower billings, zero hallucinations.</div>
+            <div class="card rv"><b>Immutable ADRs</b>Every architectural decision is preserved in <code>DECISIONS/</code>. Before an agent can alter an existing pattern, it must cross-reference historical decision records.</div>
+            <div class="card rv"><b>Reusable Skills &amp; Rules</b>Rules in <code>.agents/rules/</code> and specialized skills in <code>.agents/skills/</code> propagate across all satellite projects without messy copy-paste drift.</div>
+            <div class="card rv"><b>Solo Founder Shield</b>Engineers juggling backend, frontend, infrastructure, and mobile gain a 24/7 technical co-founder that keeps every project specification strictly aligned.</div>
+        </div>
+        <div class="flow rv"><b style="color:#e5534b">Without Structure</b><span class="fc chip" style="--i:0">Volatile
+                Chat</span><span class="ar">→</span><span class="fc chip" style="--i:1">Lost Decisions</span><span
+                class="ar">→</span><span class="fc chip" style="--i:2">Architectural Drift</span><span
+                class="ar">→</span><span class="fc chip" style="--i:3">Costly LLM Everywhere</span><span
+                class="ar">→</span><span class="fc chip" style="--i:4">Unmanageable Debt</span></div>
+        <div class="flow rv"><b style="color:#2ea66a">With AI Second Brain</b><span class="fc chip" style="--i:0">Central
+                Hub</span><span class="ar">→</span><span class="fc chip" style="--i:1">Memory &amp;
+                CURRENT_STATE</span><span class="ar">→</span><span class="fc chip" style="--i:2">Immutable
+                ADRs</span><span class="ar">→</span><span class="fc chip" style="--i:3">Rules, JEV or
+                LLM</span><span class="ar">→</span><span class="fc chip" style="--i:4">Sustainable Code</span></div>
+        <h2 class="rv"><span class="n">04 · THE FAIR OBJECTION</span>Central hub or rules inside each repository?</h2>
+        <p class="rv">A question frequently raised by senior architects: why not place <code>AGENTS.md</code>, <code>.cursorrules</code>, or <code>CLAUDE.md</code> directly at the root of every repo? Both approaches are legitimate, each serving specific paradigms:</p>
+        <div class="tw rv">
+            <table class="tb">
+                <tr>
+                    <th>Criterion</th>
+                    <th>Inside Repository</th>
+                    <th>Central Hub</th>
+                </tr>
+                <tr>
+                    <td>Rule Portability</td>
+                    <td>Low: copy-paste across separate git repos</td>
+                    <td>High: shared global rules updated centrally</td>
+                </tr>
+                <tr>
+                    <td>Versioning with Code</td>
+                    <td>Native: rules and code share git commits</td>
+                    <td>Requires synchronization between hub and satellites</td>
+                </tr>
+                <tr>
+                    <td>Portfolio Visibility</td>
+                    <td>Non-existent</td>
+                    <td>Visual dashboard and <code>projects/</code> folder track everything</td>
+                </tr>
+                <tr>
+                    <td>Secret &amp; IP Isolation</td>
+                    <td>Risk of exposing business IP in public repos</td>
+                    <td>Strategic notes remain in your private local brain</td>
+                </tr>
+            </table>
+        </div>
+        <p class="rv">The verdict: a central hub excels for engineers and founders managing a multi-product ecosystem. For large teams working strictly on a single monorepo, keeping rules repo-local is often simpler. You can also combine both: the central brain acts as the upstream template generator for satellite repos.</p>
+
+        <h2 class="rv"><span class="n">05 · TARGET AUDIENCE</span>Who this is built for, and who it isn't</h2>
+        <div class="grid">
+            <div class="card rv"><b>Highly Relevant</b><b>Solo founders and indie hackers</b> operating multiple products, where mental context switching represents the largest productivity tax.</div>
+            <div class="card rv"><b>Highly Relevant</b><b>Tech leads and senior engineers</b> who have witnessed vibe coding create unmaintainable spaghettis and prioritize ADRs and cost controls.</div>
+            <div class="card rv"><b>Relevant</b><b>Consultancies and software studios</b> delivering identical quality standards across disparate client projects with strict IP boundaries.</div>
+            <div class="card rv"><b>Context-Dependent</b><b>Large teams dedicated to a single monorepo</b> typically prefer co-locating rules directly with source code.</div>
+            <div class="card rv"><b>Probably Not</b><b>Weekend throwaway prototypes.</b> For disposable experiments, formal structure is unnecessary overhead. AI Second Brain is designed for systems meant to run for years.</div>
+        </div>
+
+        <h2 class="rv"><span class="n">06 · THE REAL THREAT</span>Document rot: when memory decays</h2>
+        <p class="rv">The only true failure mode of this methodology: source code evolves while <code>CURRENT_STATE.md</code> and decision logs remain stagnant. The AI then operates on stale assumptions. Here are the three safeguards we implemented:</p>
+        <div class="grid">
+            <div class="card rv"><b>session-memory Skill</b>At session end, it automatically summarizes and persists work completed without tedious manual paperwork. The Quickstart portal supports human review before writing.</div>
+            <div class="card rv"><b>project-onboarding Skill</b>Scaffolds the full formal structure of a new project from a single standardized prompt.</div>
+            <div class="card rv"><b>Root Agent Rule</b>Any agent loading the workspace is required to digest project state before suggesting code, and update state following milestone deliveries.</div>
+        </div>
+        <p class="rv">No technical defense replaces the discipline of concluding a session properly. The methodology enforces good habits, but cannot automate away developer responsibility.</p>
+
+        <h2 class="rv"><span class="n">07 · GETTING STARTED</span>Greenfield or legacy codebases</h2>
+        <div class="code rv"><span class="ty" style="--w:61ch">$ git clone
+                https://github.com/alfredorcamara/ai-second-brain</span><span class="ty" style="--w:34ch">$ cd
+                ai-second-brain &amp;&amp; npm start</span></div>
+        <div class="grid">
+            <div class="card rv"><b>New Project (Greenfield)</b>Via Quickstart Studio in the portal, or by instructing your IDE agent to run onboarding. You instantly receive standard structure and typed contracts.</div>
+            <div class="card rv"><b>Existing Project (Brownfield)</b>Initial architectural scan with your agent, backfilled ADRs to capture legacy architectural choices (the critical step), and technical blockers cataloged in <code>CURRENT_STATE.md</code>.</div>
+        </div>
+        <div class="stats rv">
+            <div><b data-n="5">0</b>value pillars</div>
+            <div><b data-n="3">0</b>collapse forces</div>
+            <div><b data-n="3">0</b>rot defenses</div>
+            <div><b data-n="4">0</b>evolution eras</div>
+        </div>
+        <blockquote class="rv"><strong>Vibe coding produces prototypes. Systems designed to run for years require persistent memory, immutable decisions, and continuous governance.</strong></blockquote>
+      </div>
+
+      <!-- Author Bio Card -->
+      <section class="article-bio-card">
+        <div class="creator-avatar">
+          <img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="creator-avatar-fallback">AC</div>
+        </div>
+        <div class="bio-content">
+          <h4>Alfredo R. Câmara</h4>
+          <p>
+            More than 28 years in software development and architecture. Creator of <strong>AI Second Brain</strong>,
+            pioneer in persistent memory, continuous governance, and AI Decision Gate for autonomous agents.
+          </p>
+          <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">View GitHub projects ↗</a>
+          <span style="margin: 0 8px; color: var(--line);">·</span>
+          <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+
+      <!-- Navigation Between Articles -->
+      <nav class="article-navigation" aria-label="Other articles">
+        <a href="when-not-to-use-llms.html" class="nav-link-card">
+          <span class="nav-link-label">← Previous Article</span>
+          <span class="nav-link-title">When NOT to use an LLM: the decision gate that saves tokens and latency</span>
+        </a>
+        <a href="document-rot-second-brain.html" class="nav-link-card" style="text-align: right;">
+          <span class="nav-link-label">Next Article →</span>
+          <span class="nav-link-title">Document rot: the silent risk that can destroy any second brain</span>
+        </a>
+      </nav>
+
+      <!-- ── Final CTA & Tags ── -->
+      <section class="article-cta-box rv">
+        <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="160"
+          height="88">
+        <h3 class="cta-title">See AI Second Brain in action</h3>
+        <p class="cta-desc">
+          Test the live interactive demo (read-only) or clone the repository. AI Second Brain is distributed under the
+          FSL-1.1-MIT license (source-available / fair-code), free for personal use, research, study, and internal commercial use.
+        </p>
+        <div class="cta-buttons">
+          <a class="cta-btn primary" href="../../demo/index.html" target="_blank" rel="noopener">Open Live Demo</a>
+          <a class="cta-btn secondary" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank"
+            rel="noopener">View on GitHub</a>
+          <a class="cta-btn secondary" href="../../index.html">Official Website</a>
+        </div>
+        <div class="cta-au">
+          Created and maintained with passion by <strong>Alfredo R. Câmara</strong> (<a
+            href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> · <a
+            href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank"
+            rel="noopener">LinkedIn</a>)<br>
+          <em>Transforming AI agents into senior software engineers with living memory and continuous governance.</em>
+        </div>
+      </section>
+
+      <p class="tags">
+        #VibeCoding #ArtificialIntelligence #AIAgents #SoftwareEngineering #ADR #DevTools #ClaudeCode #Cursor
+      </p>
+
+    </article>
+  </main>
+
+  <!-- Standard Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html">Blog</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank" rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a>
+      <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content">
+      <span>AI Second Brain — The Persistent Memory Operating System for AI Agents</span>
+      <span class="footer-sep">·</span>
+      <span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener"
+          class="footer-author">Alfredo R. Câmara</a></span>
+      <span class="footer-sep">·</span>
+      <span>Open Source under FSL-1.1-MIT License</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    (function () {
+      // ── Particle Canvas Background ──
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H, rm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        addEventListener('resize', rs);
+        for (var i = 0; i < 42; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(56, 189, 248,' + (0.32 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(56, 189, 248,' + (0.45 + 0.4 * g) + ')' : 'rgba(255, 199, 107,' + (0.55 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.4 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // ── Scroll Reveal & Counters ──
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (e) {
+        io.observe(e);
+      });
+
+      function cnt(el) {
+        var t = +el.dataset.n, s = el.dataset.s || '', st = null;
+        function f(ts) {
+          st = st || ts;
+          var p = Math.min((ts - st) / 1200, 1);
+          el.textContent = Math.round(t * p) + s;
+          if (p < 1) requestAnimationFrame(f);
+        }
+        requestAnimationFrame(f);
+      }
+
+      // ── Copy Article Text ──
+      var cpBtn = document.getElementById('cp');
+      if (cpBtn) {
+        cpBtn.onclick = function () {
+          var b = this, t = document.getElementById('art').innerText;
+          function ok() {
+            b.innerHTML = '✅ Text copied!';
+            setTimeout(function () {
+              b.innerHTML = '📋 Copy article text';
+            }, 3000);
+          }
+          try {
+            navigator.clipboard.writeText(t).then(ok, fb);
+          } catch (e) {
+            fb();
+          }
+          function fb() {
+            try {
+              var a = document.createElement('textarea');
+              a.value = t;
+              document.body.appendChild(a);
+              a.select();
+              document.execCommand('copy');
+              a.remove();
+              ok();
+            } catch (e) {
+              b.textContent = 'Please select and copy manually';
+            }
+          }
+        };
+      }
+    })();
+  </script>
+
+  <!-- i18n Support PT ⇄ EN -->
+  <script src="../../js/i18n.dict.js"></script>
+  <script defer src="../../js/i18n.js"></script>
+</body>
+
+</html>
+
