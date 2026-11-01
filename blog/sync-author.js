@@ -92,3 +92,4 @@ function updateArticles(folder, lang) {
 updateArticles('pt', 'pt');
 updateArticles('en', 'en');
 console.log('\nSincronização concluída com sucesso em todos os 16 artigos!');
+
