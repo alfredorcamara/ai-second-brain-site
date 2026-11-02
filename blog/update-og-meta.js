@@ -13,6 +13,19 @@ const defaultBanner = `${siteBaseUrl}/assets/banner-grafo-3d.webp`;
 
 const articlesConfig = {
   // --- ARTIGOS EM PORTUGUÊS ---
+  'pt/adrs-para-agentes-de-ia.html': {
+    lang: 'pt-BR',
+    locale: 'pt_BR',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/pt/adrs-para-agentes-de-ia.html`,
+    altPt: `${siteBaseUrl}/blog/pt/adrs-para-agentes-de-ia.html`,
+    altEn: `${siteBaseUrl}/blog/en/adrs-for-ai-agents.html`,
+    ogTitle: 'ADRs para agentes: como impedir que a IA desfaça decisões que você já tomou',
+    ogDesc: 'O Git mostra o que mudou, o ADR registra o porquê. Veja como decisões arquiteturais registradas impedem que o próximo agente de IA desfaça a sua otimização.',
+    twTitle: 'ADRs para agentes de IA',
+    twDesc: 'Como impedir que a IA desfaça decisões que você já tomou.',
+    image: defaultBanner
+  },
   'pt/seu-agente-de-ia-tem-amnesia.html': {
     lang: 'pt-BR',
     locale: 'pt_BR',
@@ -132,6 +145,19 @@ const articlesConfig = {
   },
 
   // --- ARTIGOS EM INGLÊS ---
+  'en/adrs-for-ai-agents.html': {
+    lang: 'en',
+    locale: 'en_US',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/en/adrs-for-ai-agents.html`,
+    altPt: `${siteBaseUrl}/blog/pt/adrs-para-agentes-de-ia.html`,
+    altEn: `${siteBaseUrl}/blog/en/adrs-for-ai-agents.html`,
+    ogTitle: 'ADRs for AI agents: how to stop the AI from undoing decisions you already made',
+    ogDesc: 'Git shows what changed; the ADR records why. See how recorded architecture decisions stop the next AI agent from “cleaning up” your optimization.',
+    twTitle: 'ADRs for AI agents',
+    twDesc: 'How to stop the AI from undoing decisions you already made.',
+    image: defaultBanner
+  },
   'en/does-your-ai-agent-have-amnesia.html': {
     lang: 'en',
     locale: 'en_US',

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ADRs for AI agents: how to stop the AI from undoing decisions you already made — AI Second Brain</title>
+  <meta name="description" content="Git shows what changed; the ADR records why. See how recorded architecture decisions stop the next AI agent from “cleaning up” your optimization.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/en/adrs-for-ai-agents.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/pt/adrs-para-agentes-de-ia.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/en/adrs-for-ai-agents.html">
+  <meta name="theme-color" content="#03060f">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ADRs for AI agents: how to stop the AI from undoing decisions you already made">
+  <meta property="og:description" content="Git shows what changed; the ADR records why. See how recorded architecture decisions stop the next AI agent from “cleaning up” your optimization.">
+  <meta property="og:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+  <meta property="og:url" content="https://alfredorcamara.github.io/ai-second-brain-site/blog/en/adrs-for-ai-agents.html">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ADRs for AI agents">
+  <meta name="twitter:description" content="How to stop the AI from undoing decisions you already made.">
+  <meta name="twitter:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Canvas de Partículas no Topo ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Destaque Visual Obrigatório no Título (#e8b84b) ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Barra de Ação Superior (Copiar Artigo) ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Tipografia e Parágrafos do Artigo ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Banner de Imagem ── */
+    .ban {
+      margin: 32px 0;
+    }
+
+    .ban img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .ban figcaption {
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: var(--mut);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Grids de Destaque / Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Diálogos / Comparação de Chats ── */
+    .chats {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin: 24px 0;
+    }
+
+    .chat {
+      border-radius: 14px;
+      padding: 18px;
+      font: 14px/1.55 var(--font-sans);
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .chat h4 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .bad h4 {
+      color: #e5534b;
+    }
+
+    .good h4 {
+      color: #2ea66a;
+    }
+
+    .m {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin: 8px 0;
+      opacity: 0;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+
+    .u {
+      background: rgba(90, 169, 255, 0.12);
+      border: 1px solid rgba(90, 169, 255, 0.25);
+      color: #e2e8f0;
+      margin-left: auto;
+    }
+
+    .a {
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.25);
+      color: #f6f8fb;
+    }
+
+    .chat.in .m {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.9s);
+    }
+
+    @keyframes popChat {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .res {
+      font-size: 13px;
+      margin-top: 14px;
+      font-weight: 600;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Diagramas SVG ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--blue);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    @keyframes plOk {
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    /* ── Ranking de Relevância (.bars, .bar) ── */
+    .bars {
+      margin: 24px 0;
+      font: 14px var(--font-sans);
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .bar span:first-child {
+      width: 110px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .bar i {
+      height: 14px;
+      border-radius: 7px;
+      background: linear-gradient(90deg, #5aa9ff, #e8b84b);
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-block;
+    }
+
+    .bars.in .bar i {
+      width: calc(var(--v) * 30%);
+    }
+
+    .bar span:last-child {
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      font-size: 16px;
+    }
+
+    /* ── Chips do AI Gateway ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      padding: 7px 16px;
+      border-radius: 99px;
+      font-size: 13.5px;
+      color: #cbd5e1;
+      font-family: var(--font-sans);
+    }
+
+    .chip.f {
+      border-color: rgba(232, 184, 75, 0.5);
+      color: #e8b84b;
+      background: rgba(232, 184, 75, 0.08);
+      font-weight: 600;
+    }
+
+    /* ── Bloco de Código com Digitação Simulada ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .ty {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      border-right: 2px solid #e8b84b;
+    }
+
+    .code.in .ty {
+      animation: typ 2.2s steps(40) forwards;
+    }
+
+    .code.in .ty + .ty {
+      animation-delay: 2.4s;
+      animation-duration: 1.3s;
+    }
+
+    @keyframes typ {
+      to {
+        width: var(--w);
+        border-color: transparent;
+      }
+    }
+
+    /* ── Estatísticas com Números que Contam Sozinhos ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Citação em Destaque com Borda Dourada ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Badges de Compatibilidade ── */
+    .bds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+      font: 600 12.5px var(--font-sans);
+    }
+
+    .bd {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      opacity: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .bd span {
+      padding: 6px 11px;
+    }
+
+    .bd .l {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+
+    .bd .v {
+      background: var(--c);
+      color: #fff;
+    }
+
+    .bds.in .bd {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.15s);
+    }
+
+    /* ── CTA Final do Artigo e Tags ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .article-cta-box .cta-desc {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: #aab6d3;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .article-cta-box .cta-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .article-cta-box .cta-actions .btn {
+      margin: 0 !important;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .article-cta-box .cta-actions .btn-primary {
+      background: var(--gold);
+      color: #03060f;
+    }
+
+    .article-cta-box .cta-actions .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(255, 199, 107, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-actions .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid, .chats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .m, .bd, .ty, .dg .ok {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        width: auto !important;
+      }
+      .bar i {
+        transition: none !important;
+      }
+    }
+  
+.article-body ul.ck{list-style:none;margin:0 !important;padding:0 !important}
+.article-body ul.ck li{margin:0 !important;padding:6px 0 6px 26px !important;position:relative;border-bottom:1px solid var(--line)}
+.article-body ul.ck li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
+.adr-flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 24px}.adr-flow .chip{opacity:0}
+.adr-flow.in .chip{animation:adrpop .5s forwards;animation-delay:calc(var(--i)*.4s)}.adr-flow .ar{color:var(--mut)}
+.adr-line{display:block;white-space:pre-wrap;opacity:0}.code.in .adr-line{animation:adrpop .4s forwards;animation-delay:calc(var(--i)*.35s)}
+@keyframes adrpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.adr-flow .chip,.adr-line{opacity:1 !important;animation:none !important}}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain"><img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165" height="90" fetchpriority="high" decoding="async"></a>
+    <div class="links">
+      <a href="../../index.html">Home</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Articles</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Alternar idioma / Switch language (PT ⇄ EN)" aria-label="Alternar idioma / Switch language" data-no-i18n>
+        <span class="lang-globe">🌐</span><span class="lang-opt" data-lang-opt="pt">PT</span><span class="lang-sep">|</span><span class="lang-opt active" data-lang-opt="en">EN</span>
+      </button>
+      <a class="nav-cta" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+    </div>
+  </nav>
+  <div class="canvas-bg-wrapper"><canvas id="cv"></canvas></div>
+  <main class="article-page"><article class="article-shell">
+    <nav class="article-breadcrumbs" aria-label="Breadcrumb"><a href="../../index.html">Home</a><span class="sep">/</span><a href="index.html">Blog</a><span class="sep">/</span><span class="current">ADRs for agents</span></nav>
+    <header class="article-header">
+      <span class="article-badge">Governance &amp; ADRs · 9 min read</span>
+      <h1 class="article-title">ADRs for AI agents: how to <em>stop the AI from undoing</em> decisions you already made</h1>
+      <p class="article-lead">Git shows what changed. Only the ADR records why. That record is what stops the next agent from “cleaning up” an optimization you made on purpose.</p>
+      <div class="article-author-row">
+        <div class="author-info"><div class="creator-avatar sm"><img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy" onerror="this.style.display='none'"><div class="creator-avatar-fallback">AC</div></div>
+          <div class="author-details"><span class="author-name">Alfredo R. Câmara</span><span class="author-role">Creator of AI Second Brain</span></div></div>
+        <div class="article-specs"><span>📅 November 2, 2026</span><span>·</span><span>⚡ ADRs &amp; Governance</span></div>
+      </div>
+    </header>
+    <div class="article-action-row"><button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button></div>
+    <div class="article-body" id="art">
+      <p class="rv">Imagine that three weeks ago an agent replaced a LINQ query with Dapper to gain performance. Today a new session looks at the code, finds the choice odd and “cleans” it all back. Nobody erred on purpose: the agent simply did not know <b>why</b>. Git shows <i>what</i> changed. The ADR keeps the <i>why</i>.</p>
+      <h2 class="rv"><span class="n">01 · THE PROBLEM</span>The good intention that undoes your decision</h2>
+      <div class="chats">
+        <div class="chat bad rv"><h4>Without an ADR</h4><div class="m u" style="--i:0">“Can you clean up the data layer? There are a lot of hand-written queries.”</div><div class="m a" style="--i:1">“Sure! I will replace Dapper with stored procedures with Entity Framework, which is more modern and readable.”</div><div class="m u" style="--i:2">“…that was on purpose. Performance tanked.”</div><div class="res" style="color:#f87171">⚠️ The optimization was undone with good intentions.</div></div>
+        <div class="chat good rv"><h4>With an ADR</h4><div class="m u" style="--i:0">“Can you clean up the data layer? There are a lot of hand-written queries.”</div><div class="m a" style="--i:1">“Before touching it, I read <code>DECISIONS/ADR-002-dapper-stored-procedures.md</code>: we use Dapper for performance and legacy compatibility. I will keep it. Should I propose improvements within that decision, or open a new ADR to revisit it?”</div><div class="res" style="color:#4ade80">✨ The decision was respected and the path to change it is clear.</div></div>
+      </div>
+      <p class="mut" style="font-size:14px;color:var(--mut);margin-bottom:24px;">Illustrative example conversation; the ADR file name is fictional.</p>
+      <h2 class="rv"><span class="n">02 · THE ADR</span>The record of why, in a file the agent reads</h2>
+      <p class="rv">In AI Second Brain, each project keeps numbered ADRs in <code>DECISIONS/</code> (such as <code>ADR-001-stack-inicial.md</code>), and global decisions live in <code>decisions/GLOBAL_DECISIONS.md</code>. The master rule requires the agent to consult those decisions before changing any pattern.</p>
+      <div class="code rv"><span class="adr-line" style="--i:0"># ADR-002 · Dapper with stored procedures</span><span class="adr-line" style="--i:1">Status: accepted</span><span class="adr-line" style="--i:2">Context: high query volume and legacy compatibility.</span><span class="adr-line" style="--i:3">Decision: use Dapper with stored procedures in the data layer.</span><span class="adr-line" style="--i:4">Rejected alternatives: Entity Framework (performance cost in this scenario).</span><span class="adr-line" style="--i:5">Consequences: more hand-written SQL, predictable performance.</span><span class="adr-line" style="--i:6">Rule for agents: do not replace without explicit authorization and a new ADR.</span></div>
+      <p class="mut" style="font-size:14px;color:var(--mut);margin-bottom:24px;">Suggested template, written by me. The project does not enforce a format.</p>
+      <h2 class="rv"><span class="n">03 · HOW THE AGENT USES IT</span>Consult before changing</h2>
+      <div class="adr-flow rv"><span class="chip" style="--i:0">New task</span><span class="ar">→</span><span class="chip" style="--i:1">Master rule: consult DECISIONS/</span><span class="ar">→</span><span class="chip" style="--i:2">Is there an ADR on the topic?</span><span class="ar">→</span><span class="chip" style="--i:3">Yes: respect it or propose a new ADR</span><span class="ar">→</span><span class="chip" style="--i:4">No: proceed and record</span></div>
+      <p class="rv">In the project search (<code>Ctrl+K</code>), ADRs carry the highest weight in the ranking:</p>
+      <div class="bars rv"><div class="bar"><span>ADRs</span><i style="--v:2.4"></i><span>2.4x</span></div><div class="bar"><span>Current state</span><i style="--v:2.2"></i><span>2.2x</span></div><div class="bar"><span>Contracts</span><i style="--v:2.0"></i><span>2.0x</span></div><div class="bar"><span>Rules</span><i style="--v:1.8"></i><span>1.8x</span></div></div>
+      <h2 class="rv"><span class="n">04 · CHANGING YOUR MIND</span>An immutable decision is not an eternal decision</h2>
+      <p class="rv">Immutable means the ADR is not rewritten to erase the past. When reality changes, the path is a new ADR, and the project rule is not to change the architecture without recording it. Marking the old one as superseded is a practice I recommend.</p>
+      <div class="dg rv"><svg viewBox="0 0 640 190" role="img" aria-label="An immutable decision is not an eternal decision"><rect class="b" x="20" y="50" width="250" height="84" rx="12"/><text x="145" y="86" text-anchor="middle">ADR-002 · Dapper</text><text class="s" x="145" y="112" text-anchor="middle">superseded by ADR-007</text>
+<path class="fl" d="M270 92 L370 92"/><text class="s" x="320" y="80" text-anchor="middle">a new ADR supersedes</text>
+<rect class="h" x="370" y="50" width="250" height="84" rx="12"/><text x="495" y="86" text-anchor="middle">ADR-007 · new decision</text><text class="s" x="495" y="112" text-anchor="middle">accepted</text></svg></div>
+      <h2 class="rv"><span class="n">05 · LEGACY PROJECTS</span>Retroactive ADRs: shielding what already exists</h2>
+      <p class="rv">In legacy code the biggest risk is the agent trying to “rewrite everything” with modern patterns, such as swapping Dapper for Entity Framework or SQL Server for PostgreSQL. The defense is recording retroactive ADRs for the decisions that must not be violated, also stating who can authorize an exception.</p>
+      <div class="code rv"><span class="adr-line" style="--i:0">Read the [NAME] project and list the architecture decisions already consolidated.</span><span class="adr-line" style="--i:1">For each one, write a retroactive ADR in DECISIONS/ with the reason</span><span class="adr-line" style="--i:2">and the rule: do not change without explicit authorization.</span></div>
+      <p class="mut" style="font-size:14px;color:var(--mut);margin-bottom:24px;">Example prompt, written by me.</p>
+      <h2 class="rv"><span class="n">06 · CHECKLIST</span>Before ending the session</h2>
+      <ul class="ck rv"><li>Every relevant architecture decision became an ADR.</li><li>No decision stayed only in the chat.</li><li>The ADR records the reason, rejected alternatives and consequences.</li><li>The master rule says to consult <code>DECISIONS/</code> before changing a pattern.</li><li>A pattern change produced a new ADR, and the old one was marked as superseded.</li><li>The agent knows who can authorize an exception.</li></ul>
+      <h2 class="rv"><span class="n">07 · HONEST LIMITS</span>What the ADR does not solve</h2>
+      <div class="grid"><div class="card rv"><b>It is not a technical lock</b>It is context the agent reads. It depends on the IDE loading the rules: in an isolated open repository you need a bridge file (<code>AGENTS.md</code>, <code>CLAUDE.md</code> or <code>.cursorrules</code>).</div><div class="card rv"><b>Too many ADRs become noise</b>Record the decisions that would change the project course, not every implementation detail.</div><div class="card rv"><b>A stale ADR misleads</b>If reality changed and the record did not, the brain rots. Update or supersede it.</div></div>
+      <div class="stats rv"><div><b data-n="4">0</b>sections in the ADR template</div><div><b data-n="1">0</b>new ADR per pattern change</div><div><b data-n="0">0</b>decisions only in chat</div></div>
+      <blockquote class="rv"><strong>A decision that was not recorded is just a suggestion to the next agent.</strong></blockquote>
+    </div>
+    <section class="article-bio-card">
+      <div class="creator-avatar"><img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy" onerror="this.style.display='none'"><div class="creator-avatar-fallback">AC</div></div>
+      <div class="bio-content"><h4>Alfredo R. Câmara</h4><p class="author-bio" data-author-bio>28+ years of experience in software development, architecture and systems integration. Creator of <strong>AI Second Brain</strong>, an open source project exploring new ways to organize knowledge and context to support AI-assisted development.</p>
+        <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">See projects on GitHub ↗</a><span style="margin: 0 8px; color: var(--line);">·</span><a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </section>
+    <nav class="article-navigation" aria-label="Other articles">
+      <a href="research-lab-self-writing-documentation.html" class="nav-link-card"><span class="nav-link-label">← Previous Article</span><span class="nav-link-title">Research Lab: technical documentation that writes itself</span></a>
+      <a href="document-rot-second-brain.html" class="nav-link-card" style="text-align: right;"><span class="nav-link-label">See Also →</span><span class="nav-link-title">Document rot: the risk that can kill any second brain</span></a>
+    </nav>
+    <section class="article-cta-box rv">
+      <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210" height="115">
+      <h3 class="cta-title">Try it now, no install needed</h3>
+      <p class="cta-desc">The demo runs the real dashboard with a sample vault, in read-only mode: explore the 3D graph and press Ctrl+K.</p>
+      <div class="cta-actions"><a href="../../demo/index.html" target="_blank" rel="noopener" class="btn btn-primary">🌐 Open Live 3D Demo</a><a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener" class="btn btn-secondary">⭐ View on GitHub</a></div>
+      <div class="cta-au">Created and maintained with passion by <strong>Alfredo R. Câmara</strong> (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> · <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank" rel="noopener">LinkedIn</a>)<br><em>Turning AI agents into senior software engineers with living memory and continuous governance.</em></div>
+    </section>
+    <p class="tags">#ArtificialIntelligence #AIAgents #SoftwareEngineering #ADR #Architecture #DevTools #ClaudeCode #Cursor</p>
+  </article></main>
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Home</a><a href="index.html">Blog</a><a href="../../demo/index.html" target="_blank" rel="noopener">3D Demo</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank" rel="noopener">Discussions</a>
+      <a href="../../index.html#faq">FAQ</a><a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Creator: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content"><span>AI Second Brain — The Memory Operating System for AI Agents</span><span class="footer-sep">·</span><span>Created by <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener" class="footer-author">Alfredo R. Câmara</a></span><span class="footer-sep">·</span><span>Open Source under FSL-1.1-MIT License</span></div>
+  </footer>
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script src="../author.js"></script>
+  <script>
+    (function () {
+      // 1. Partículas no Topo
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Contadores
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Botão de Copiar Artigo
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Text copied!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copy article text';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Não foi possível copiar automaticamente. Selecione e copie manualmente.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+</html>

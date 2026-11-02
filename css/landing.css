@@ -1337,6 +1337,7 @@ code {
 
 footer {
   margin-top: 14vh;
+  padding-bottom: 50px;
   color: var(--mut);
   font-size: 13.5px;
   pointer-events: auto;

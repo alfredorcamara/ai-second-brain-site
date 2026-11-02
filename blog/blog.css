@@ -330,7 +330,7 @@ body .nav {
 
 .article-page {
   padding-top: clamp(140px, 14vw, 170px);
-  padding-bottom: 100px;
+  padding-bottom: 24px;
 }
 
 .article-shell {
@@ -789,4 +789,66 @@ body .nav {
   color: var(--gold);
   background: radial-gradient(circle, #1e293b, #090e17);
   z-index: -1;
+}
+
+/* ── Rodapé Oficial dos Artigos e Hubs do Blog (Afastamento e Respiro) ── */
+footer {
+  margin-top: 70px !important;
+  padding: 36px 24px 64px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(3, 6, 15, 0.75) !important;
+  text-align: center !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.footer-links {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 20px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-bottom: 14px !important;
+}
+
+.footer-links a {
+  color: var(--mut) !important;
+  text-decoration: none !important;
+  font-size: 13.5px !important;
+  font-family: var(--font-sans) !important;
+  transition: color 0.2s ease, transform 0.2s ease !important;
+}
+
+.footer-links a:hover {
+  color: var(--gold) !important;
+  transform: translateY(-1px) !important;
+}
+
+.footer-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  font-size: 13px !important;
+  font-family: var(--font-sans) !important;
+  color: var(--mut) !important;
+  line-height: 1.6 !important;
+}
+
+.footer-author {
+  color: var(--gold) !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  transition: color 0.2s ease !important;
+}
+
+.footer-author:hover {
+  color: #fff !important;
+  text-decoration: underline !important;
+}
+
+.footer-sep {
+  opacity: 0.35 !important;
+  color: var(--mut) !important;
 }
