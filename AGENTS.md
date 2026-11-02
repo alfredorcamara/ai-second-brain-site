@@ -24,3 +24,4 @@ Antes de criar ou editar qualquer artigo, leia obrigatoriamente:
 - **Modelos de referência:**
   - 🇧🇷 [`blog/pt/quando-nao-usar-llm.html`](blog/pt/quando-nao-usar-llm.html)
   - 🇺🇸 [`blog/en/when-not-to-use-llms.html`](blog/en/when-not-to-use-llms.html)
+- **Metatags Sociais Obrigatórias:** Todo artigo gerado deve incluir as 11 tags completas de Open Graph e Twitter Cards, com `og:image` e `twitter:image` absolutas apontando para `https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp`, `og:url` canônico e `og:locale` (`pt_BR` ou `en_US`).
