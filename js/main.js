@@ -329,4 +329,46 @@
             target.scrollIntoView({ behavior: 'smooth' });
         }
     });
+
+    // ── Menu Hamburguer Mobile ──
+    const mobileMenuBtn = $('#mobile-menu-btn');
+    const navLinks = $('.nav .links');
+    if (mobileMenuBtn && navLinks) {
+        const toggleMenu = (open) => {
+            const willOpen = typeof open === 'boolean' ? open : !navLinks.classList.contains('mobile-active');
+            navLinks.classList.toggle('mobile-active', willOpen);
+            mobileMenuBtn.classList.toggle('is-open', willOpen);
+            mobileMenuBtn.setAttribute('aria-expanded', String(willOpen));
+            document.body.classList.toggle('menu-overlay-open', willOpen);
+        };
+
+        mobileMenuBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleMenu();
+        };
+
+        // Fecha ao clicar em qualquer link interno do menu
+        navLinks.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMenu(false);
+                }
+            });
+        });
+
+        // Fecha se clicar fora do menu
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('mobile-active') && !e.target.closest('.nav')) {
+                toggleMenu(false);
+            }
+        });
+
+        // Fecha ao apertar ESC
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navLinks.classList.contains('mobile-active')) {
+                toggleMenu(false);
+            }
+        });
+    }
+
 })();

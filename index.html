@@ -36,6 +36,7 @@
     fetchpriority="high">
   <link rel="stylesheet" href="css/landing.css">
   <link rel="stylesheet" href="css/extra.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 
 <body>
@@ -52,6 +53,11 @@
 
   <!-- ── Barra de Navegação ── -->
   <nav class="nav">
+    <button class="mobile-menu-btn" id="mobile-menu-btn" type="button" aria-label="Abrir Menu de Navegação" aria-expanded="false">
+      <span class="menu-icon-bar"></span>
+      <span class="menu-icon-bar"></span>
+      <span class="menu-icon-bar"></span>
+    </button>
     <a class="brand" href="#topo" aria-label="AI Second Brain"><img src="assets/ai-second-brain-logo-animado.svg"
         alt="AI Second Brain Logo" class="brand-brain-img" width="165" height="90" fetchpriority="high"
         decoding="async"></a>
@@ -82,7 +88,7 @@
       <div class="hero-content">
         <div class="eyebrow rv">
           <span class="eyebrow-dot"></span>
-          <span>Código Aberto · 100% Markdown · Qualquer Agente de IA</span>
+          <span class="eyebrow-text-full">Código Aberto · 100% Markdown · Qualquer Agente de IA</span><span class="eyebrow-text-mobile">Código Aberto · Markdown</span>
           <a class="hero-version-pill" href="https://github.com/alfredorcamara/ai-second-brain/releases/tag/v1.5.0"
             target="_blank" rel="noopener" title="Ver Release Oficial v1.5.0 no GitHub">
             <span class="version-rocket">🚀</span>

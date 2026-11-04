@@ -12,6 +12,59 @@ const siteBaseUrl = 'https://alfredorcamara.github.io/ai-second-brain-site';
 const defaultBanner = `${siteBaseUrl}/assets/banner-grafo-3d.webp`;
 
 const articlesConfig = {
+  'pt/como-gerencio-varios-projetos-com-agentes-de-ia.html': {
+    lang: 'pt-BR',
+    locale: 'pt_BR',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/pt/como-gerencio-varios-projetos-com-agentes-de-ia.html`,
+    altPt: `${siteBaseUrl}/blog/pt/como-gerencio-varios-projetos-com-agentes-de-ia.html`,
+    altEn: `${siteBaseUrl}/blog/en/how-i-manage-multiple-projects-with-ai-agents.html`,
+    ogTitle: 'Como gerencio vários projetos com agentes de IA sem perder o fio',
+    ogDesc: 'O método que uso para alternar entre vários projetos com agentes de IA sem reexplicar tudo: estado registrado, ritual de sessão e cadência de manutenção.',
+    twTitle: 'Como gerencio vários projetos com agentes de IA sem perder o fio',
+    twDesc: 'O método prático para alternar entre projetos com agentes de IA sem reexplicar contexto.',
+    image: defaultBanner
+  },
+  'pt/hub-central-ou-cursorrules-por-repositorio.html': {
+    lang: 'pt-BR',
+    locale: 'pt_BR',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/pt/hub-central-ou-cursorrules-por-repositorio.html`,
+    altPt: `${siteBaseUrl}/blog/pt/hub-central-ou-cursorrules-por-repositorio.html`,
+    altEn: `${siteBaseUrl}/blog/en/central-hub-or-cursorrules-per-repository.html`,
+    ogTitle: 'Hub central ou .cursorrules em cada repositório? O debate de quem tem mais de um projeto',
+    ogDesc: 'Regras de IA dentro de cada repositório ou em um hub central? Compare portabilidade, versionamento, visão de portfólio e isolamento de segredos para escolher.',
+    twTitle: 'Hub central ou .cursorrules por repositório?',
+    twDesc: 'Compare portabilidade, versionamento, visão de portfólio e isolamento de segredos.',
+    image: defaultBanner
+  },
+  'en/how-i-manage-multiple-projects-with-ai-agents.html': {
+    lang: 'en',
+    locale: 'en_US',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/en/how-i-manage-multiple-projects-with-ai-agents.html`,
+    altPt: `${siteBaseUrl}/blog/pt/como-gerencio-varios-projetos-com-agentes-de-ia.html`,
+    altEn: `${siteBaseUrl}/blog/en/how-i-manage-multiple-projects-with-ai-agents.html`,
+    ogTitle: 'How I manage multiple projects with AI agents without losing the thread',
+    ogDesc: 'The method I use to switch between several projects with AI agents without re-explaining everything: recorded state, a session ritual and a maintenance cadence.',
+    twTitle: 'How I manage multiple projects with AI agents without losing the thread',
+    twDesc: 'Switch between several projects with AI agents without re-explaining everything.',
+    image: defaultBanner
+  },
+  'en/central-hub-or-cursorrules-per-repository.html': {
+    lang: 'en',
+    locale: 'en_US',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/en/central-hub-or-cursorrules-per-repository.html`,
+    altPt: `${siteBaseUrl}/blog/pt/hub-central-ou-cursorrules-por-repositorio.html`,
+    altEn: `${siteBaseUrl}/blog/en/central-hub-or-cursorrules-per-repository.html`,
+    ogTitle: 'Central hub or .cursorrules in every repository? The debate for anyone with more than one project',
+    ogDesc: 'AI rules inside each repository or in a central hub? Compare portability, versioning, portfolio view and secrets isolation to choose.',
+    twTitle: 'Central hub or .cursorrules in every repository?',
+    twDesc: 'Compare portability, versioning, portfolio view and secrets isolation to choose.',
+    image: defaultBanner
+  },
+
   // --- ARTIGOS EM PORTUGUÊS ---
   'pt/adrs-para-agentes-de-ia.html': {
     lang: 'pt-BR',
