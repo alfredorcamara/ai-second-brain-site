@@ -12,6 +12,59 @@ const siteBaseUrl = 'https://alfredorcamara.github.io/ai-second-brain-site';
 const defaultBanner = `${siteBaseUrl}/assets/banner-grafo-3d.webp`;
 
 const articlesConfig = {
+  'pt/um-cerebro-varios-repositorios-governanca-comum.html': {
+    lang: 'pt-BR',
+    locale: 'pt_BR',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html`,
+    altPt: `${siteBaseUrl}/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html`,
+    altEn: `${siteBaseUrl}/blog/en/one-brain-many-repositories-shared-governance.html`,
+    ogTitle: 'Um cérebro, vários repositórios: governança comum para todos os seus projetos com IA',
+    ogDesc: 'Como manter o mesmo padrão de segurança, regras e decisões em vários projetos com agentes de IA, sem misturar o que pertence a cada um.',
+    twTitle: 'Um cérebro, vários repositórios com IA',
+    twDesc: 'Governança comum para todos os seus projetos com agentes de IA.',
+    image: defaultBanner
+  },
+  'pt/quando-a-ia-limpa-o-codigo-e-desfaz-a-otimizacao.html': {
+    lang: 'pt-BR',
+    locale: 'pt_BR',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/pt/quando-a-ia-limpa-o-codigo-e-desfaz-a-otimizacao.html`,
+    altPt: `${siteBaseUrl}/blog/pt/quando-a-ia-limpa-o-codigo-e-desfaz-a-otimizacao.html`,
+    altEn: `${siteBaseUrl}/blog/en/when-ai-cleans-up-your-code-and-undoes-your-optimization.html`,
+    ogTitle: 'Quando a IA “limpa” o código e desfaz a sua otimização',
+    ogDesc: 'Por que agentes de IA “limpam” otimizações deliberadas, como a regressão passa despercebida e as camadas de defesa do AI Second Brain para impedir isso.',
+    twTitle: 'Quando a IA limpa o código e desfaz a otimização',
+    twDesc: 'Como impedir que agentes de IA revertam otimizações deliberadas silenciosamente.',
+    image: defaultBanner
+  },
+  'en/one-brain-many-repositories-shared-governance.html': {
+    lang: 'en',
+    locale: 'en_US',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/en/one-brain-many-repositories-shared-governance.html`,
+    altPt: `${siteBaseUrl}/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html`,
+    altEn: `${siteBaseUrl}/blog/en/one-brain-many-repositories-shared-governance.html`,
+    ogTitle: 'One brain, many repositories: shared governance for all your AI projects',
+    ogDesc: 'How to keep the same security, rules and decisions across several projects with AI agents, without mixing what belongs to each one.',
+    twTitle: 'One brain, many repositories with AI',
+    twDesc: 'Shared governance across all your AI projects without mixing contexts.',
+    image: defaultBanner
+  },
+  'en/when-ai-cleans-up-your-code-and-undoes-your-optimization.html': {
+    lang: 'en',
+    locale: 'en_US',
+    type: 'article',
+    canonical: `${siteBaseUrl}/blog/en/when-ai-cleans-up-your-code-and-undoes-your-optimization.html`,
+    altPt: `${siteBaseUrl}/blog/pt/quando-a-ia-limpa-o-codigo-e-desfaz-a-otimizacao.html`,
+    altEn: `${siteBaseUrl}/blog/en/when-ai-cleans-up-your-code-and-undoes-your-optimization.html`,
+    ogTitle: 'When AI “cleans up” your code and undoes your optimization',
+    ogDesc: 'Why AI agents “clean up” deliberate optimizations, how the regression goes unnoticed and the AI Second Brain layers of defense that prevent it.',
+    twTitle: 'When AI cleans up code and undoes optimization',
+    twDesc: 'How to stop AI agents from silently rolling back your optimizations.',
+    image: defaultBanner
+  },
+
   'pt/como-gerencio-varios-projetos-com-agentes-de-ia.html': {
     lang: 'pt-BR',
     locale: 'pt_BR',

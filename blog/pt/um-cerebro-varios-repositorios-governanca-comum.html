@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Um cérebro, vários repositórios: governança comum para todos os seus projetos com IA — AI Second Brain</title>
+  <meta name="description" content="Como manter o mesmo padrão de segurança, regras e decisões em vários projetos com agentes de IA, sem misturar o que pertence a cada um.">
+  <link rel="icon" href="../../assets/favicon.svg">
+  <link rel="canonical" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html">
+  <link rel="alternate" hreflang="en" href="https://alfredorcamara.github.io/ai-second-brain-site/blog/en/one-brain-many-repositories-shared-governance.html">
+  <meta name="theme-color" content="#03060f">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Um cérebro, vários repositórios: governança comum para todos os seus projetos com IA">
+  <meta property="og:description" content="Como manter o mesmo padrão de segurança, regras e decisões em vários projetos com agentes de IA, sem misturar o que pertence a cada um.">
+  <meta property="og:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+  <meta property="og:url" content="https://alfredorcamara.github.io/ai-second-brain-site/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:locale" content="pt_BR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Um cérebro, vários repositórios">
+  <meta name="twitter:description" content="Governança comum para todos os seus projetos com IA.">
+  <meta name="twitter:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+    <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Um cérebro, vários repositórios: governança comum para todos os seus projetos com IA">
+  <meta property="og:description" content="Como manter o mesmo padrão de segurança, regras e decisões em vários projetos com agentes de IA, sem misturar o que pertence a cada um.">
+  <meta property="og:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+  <meta property="og:url" content="https://alfredorcamara.github.io/ai-second-brain-site/blog/pt/um-cerebro-varios-repositorios-governanca-comum.html">
+  <meta property="og:site_name" content="AI Second Brain">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Um cérebro, vários repositórios com IA">
+  <meta name="twitter:description" content="Governança comum para todos os seus projetos com agentes de IA.">
+  <meta name="twitter:image" content="https://alfredorcamara.github.io/ai-second-brain-site/assets/banner-grafo-3d.webp">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/landing.css">
+  <link rel="stylesheet" href="../../css/extra.css">
+  <link rel="stylesheet" href="../blog.css">
+  <style>
+    :root {
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    /* ── Canvas de Partículas no Topo ── */
+    .canvas-bg-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #cv {
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+    }
+
+    .article-page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Destaque Visual Obrigatório no Título (#e8b84b) ── */
+    .article-title em,
+    .article-title .highlight {
+      color: #e8b84b;
+      font-style: italic;
+    }
+
+    /* ── Barra de Ação Superior (Copiar Artigo) ── */
+    .article-action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .copy-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.35);
+      color: #f6f8fb;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-article-btn:hover {
+      background: var(--gold);
+      color: #03060f;
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 184, 75, 0.35);
+    }
+
+    /* ── Tipografia e Parágrafos do Artigo ── */
+    .article-body {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+
+    .article-body p {
+      margin-bottom: 22px;
+    }
+
+    .article-body strong,
+    .article-body b {
+      color: #f6f8fb;
+      font-weight: 700;
+    }
+
+    .article-body h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 46px 0 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .article-body h2 .n {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .article-body code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #e2e8f0;
+    }
+
+    /* ── Banner de Imagem ── */
+    .ban {
+      margin: 32px 0;
+    }
+
+    .ban img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .ban figcaption {
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: var(--mut);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Grids de Destaque / Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    /* ── Diálogos / Comparação de Chats ── */
+    .chats {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin: 24px 0;
+    }
+
+    .chat {
+      border-radius: 14px;
+      padding: 18px;
+      font: 14px/1.55 var(--font-sans);
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .chat h4 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .bad h4 {
+      color: #e5534b;
+    }
+
+    .good h4 {
+      color: #2ea66a;
+    }
+
+    .m {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin: 8px 0;
+      opacity: 0;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+
+    .u {
+      background: rgba(90, 169, 255, 0.12);
+      border: 1px solid rgba(90, 169, 255, 0.25);
+      color: #e2e8f0;
+      margin-left: auto;
+    }
+
+    .a {
+      background: rgba(232, 184, 75, 0.12);
+      border: 1px solid rgba(232, 184, 75, 0.25);
+      color: #f6f8fb;
+    }
+
+    .chat.in .m {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.9s);
+    }
+
+    @keyframes popChat {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .res {
+      font-size: 13px;
+      margin-top: 14px;
+      font-weight: 600;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+
+    /* ── Scroll Reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Diagramas SVG ── */
+    .dg {
+      margin: 28px 0;
+      background: rgba(13, 20, 38, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --blue: #5aa9ff;
+      --acc: #e8b84b;
+    }
+
+    .dg svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dg text {
+      fill: #e8ecf5;
+      font: 600 14px var(--font-sans);
+    }
+
+    .dg .s {
+      font-weight: 400;
+      font-size: 12px;
+      fill: var(--mut);
+    }
+
+    .dg .b {
+      fill: #0c1222;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .dg .h {
+      fill: rgba(232, 184, 75, 0.14);
+      stroke: var(--gold);
+      stroke-width: 1.5;
+    }
+
+    .dg .fl {
+      stroke: var(--blue);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+      animation: dshFlow 1.2s linear infinite;
+    }
+
+    @keyframes dshFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .dg .ok {
+      animation: plOk 3s infinite;
+    }
+
+    @keyframes plOk {
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    /* ── Ranking de Relevância (.bars, .bar) ── */
+    .bars {
+      margin: 24px 0;
+      font: 14px var(--font-sans);
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .bar span:first-child {
+      width: 110px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .bar i {
+      height: 14px;
+      border-radius: 7px;
+      background: linear-gradient(90deg, #5aa9ff, #e8b84b);
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-block;
+    }
+
+    .bars.in .bar i {
+      width: calc(var(--v) * 30%);
+    }
+
+    .bar span:last-child {
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      font-size: 16px;
+    }
+
+    /* ── Chips do AI Gateway ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(13, 20, 38, 0.85);
+      padding: 7px 16px;
+      border-radius: 99px;
+      font-size: 13.5px;
+      color: #cbd5e1;
+      font-family: var(--font-sans);
+    }
+
+    .chip.f {
+      border-color: rgba(232, 184, 75, 0.5);
+      color: #e8b84b;
+      background: rgba(232, 184, 75, 0.08);
+      font-weight: 600;
+    }
+
+    /* ── Bloco de Código com Digitação Simulada ── */
+    .code {
+      background: #02040a;
+      border: 1px solid var(--line);
+      color: #cfe3ff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font: 14px/1.8 ui-monospace, Consolas, monospace;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .ty {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      border-right: 2px solid #e8b84b;
+    }
+
+    .code.in .ty {
+      animation: typ 2.2s steps(40) forwards;
+    }
+
+    .code.in .ty + .ty {
+      animation-delay: 2.4s;
+      animation-duration: 1.3s;
+    }
+
+    @keyframes typ {
+      to {
+        width: var(--w);
+        border-color: transparent;
+      }
+    }
+
+    /* ── Estatísticas com Números que Contam Sozinhos ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+      text-align: center;
+    }
+
+    .stats div {
+      background: rgba(13, 20, 38, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 8px;
+      font: 13.5px var(--font-sans);
+      color: var(--mut);
+    }
+
+    .stats b {
+      display: block;
+      font-size: 36px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Citação em Destaque com Borda Dourada ── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      margin: 28px 0;
+      padding: 10px 0 10px 20px;
+      font-style: italic;
+      font-family: var(--font-serif);
+      font-size: 17.5px;
+      line-height: 1.6;
+      color: #f6f8fb;
+      background: rgba(255, 199, 107, 0.04);
+      border-radius: 0 8px 8px 0;
+    }
+
+    blockquote strong,
+    blockquote b {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── Badges de Compatibilidade ── */
+    .bds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+      font: 600 12.5px var(--font-sans);
+    }
+
+    .bd {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      opacity: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .bd span {
+      padding: 6px 11px;
+    }
+
+    .bd .l {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+
+    .bd .v {
+      background: var(--c);
+      color: #fff;
+    }
+
+    .bds.in .bd {
+      animation: popChat 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.15s);
+    }
+
+    /* ── CTA Final do Artigo e Tags ── */
+    .article-cta-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      background: #02040a !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      margin-top: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-logo {
+      width: 210px !important;
+      height: auto;
+      max-width: 85%;
+      margin: 0 auto 22px auto !important;
+      display: block !important;
+    }
+
+    .article-cta-box .cta-title {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .article-cta-box .cta-desc {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: #aab6d3;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .article-cta-box .cta-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .article-cta-box .cta-actions .btn {
+      margin: 0 !important;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .article-cta-box .cta-actions .btn-primary {
+      background: var(--gold);
+      color: #03060f;
+    }
+
+    .article-cta-box .cta-actions .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(255, 199, 107, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .article-cta-box .cta-actions .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .article-cta-box .cta-au {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #aab6d3;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .article-cta-box .cta-au strong {
+      color: #fff;
+    }
+
+    .article-cta-box .cta-au a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article-cta-box .cta-au a:hover {
+      text-decoration: underline;
+    }
+
+    .article-cta-box .cta-au em {
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+      font-size: 13.5px;
+      color: #8b9bb4;
+    }
+
+    .tags {
+      text-align: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--cyan);
+      margin: 26px auto 0;
+      word-spacing: 6px;
+      max-width: 760px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .grid, .chats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv, .m, .bd, .ty, .dg .ok {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        width: auto !important;
+      }
+      .bar i {
+        transition: none !important;
+      }
+    }
+  
+.article-body ul.ck{list-style:none;margin:0 !important;padding:0 !important}
+.article-body ul.ck li{margin:0 !important;padding:6px 0 6px 26px !important;position:relative;border-bottom:1px solid var(--line)}
+.article-body ul.ck li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
+.adr-flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 24px}.adr-flow .chip{opacity:0}
+.adr-flow.in .chip{animation:adrpop .5s forwards;animation-delay:calc(var(--i)*.4s)}.adr-flow .ar{color:var(--mut)}
+.adr-line{display:block;white-space:pre-wrap;opacity:0}.code.in .adr-line{animation:adrpop .4s forwards;animation-delay:calc(var(--i)*.35s)}
+@keyframes adrpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.adr-flow .chip,.adr-line{opacity:1 !important;animation:none !important}}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="../../index.html" aria-label="AI Second Brain"><img src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain Logo" class="brand-brain-img" width="165" height="90" fetchpriority="high" decoding="async"></a>
+    <div class="links">
+      <a href="../../index.html">Início</a>
+      <a href="index.html" style="color: var(--gold);">← Blog &amp; Artigos</a>
+      <a href="../../demo/index.html" target="_blank" rel="noopener">Demo 3D</a>
+      <button class="lang-btn" id="lang-btn" type="button" title="Alternar idioma / Switch language (PT ⇄ EN)" aria-label="Alternar idioma / Switch language" data-no-i18n>
+        <span class="lang-globe">🌐</span><span class="lang-opt active" data-lang-opt="pt">PT</span><span class="lang-sep">|</span><span class="lang-opt" data-lang-opt="en">EN</span>
+      </button>
+      <a class="nav-cta" href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener">⭐ Star no GitHub</a>
+    </div>
+  </nav>
+  <div class="canvas-bg-wrapper"><canvas id="cv"></canvas></div>
+  <main class="article-page"><article class="article-shell">
+    <nav class="article-breadcrumbs" aria-label="Navegação estrutural"><a href="../../index.html">Início</a><span class="sep">/</span><a href="index.html">Blog</a><span class="sep">/</span><span class="current">Um cérebro, vários repositórios</span></nav>
+    <header class="article-header">
+      <span class="article-badge">Arquitetura &amp; Governança · 8 min de leitura</span>
+      <h1 class="article-title">Um cérebro, vários repositórios: <em>governança comum</em> para todos os seus projetos com IA</h1>
+      <p class="article-lead">Com vários projetos, o problema não é só cada agente esquecer. É cada projeto ter o seu próprio jeito. Um cérebro compartilhado dá o mesmo padrão a todos, sem misturar o que é de cada um.</p>
+      <div class="article-author-row">
+        <div class="author-info"><div class="creator-avatar sm"><img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy" onerror="this.style.display='none'"><div class="creator-avatar-fallback">AC</div></div>
+          <div class="author-details"><span class="author-name">Alfredo R. Câmara</span><span class="author-role">Criador do AI Second Brain</span></div></div>
+        <div class="article-specs"><span>📅 2 de Novembro de 2026</span><span>·</span><span>⚡ Arquitetura &amp; Governança</span></div>
+      </div>
+    </header>
+    <div class="article-action-row"><button id="cp" class="copy-article-btn" type="button">📋 Copiar texto do artigo</button></div>
+    <div class="article-body" id="art">
+      <p class="rv">Imagine três repositórios com três jeitos diferentes de commitar, três políticas de segurança e três formas de decidir quando chamar uma IA. Cada agente trabalha bem dentro do seu projeto, e o conjunto vira uma colcha de retalhos. O AI Second Brain resolve isso separando o que é <b>comum</b> a todos do que é <b>específico</b> de cada projeto.</p>
+      <h2 class="rv"><span class="n">01 · O QUE É COMUM</span>As camadas compartilhadas por todos os projetos</h2>
+      <div class="grid"><div class="card rv"><b>Regras inegociáveis</b><br><code>.agents/rules/</code>: desenvolvimento, segurança, roteamento de IA e documentação.</div><div class="card rv"><b>Skills do agente</b><br><code>.agents/skills/</code>: gate de IA, onboarding de projetos, revisão arquitetural e persistência de memória.</div><div class="card rv"><b>Base de conhecimento</b><br><code>knowledge/</code>: padrões universais, como AI Gateway, AIJev, OWASP e arquitetura.</div><div class="card rv"><b>Memória e decisões globais</b><br><code>memory/</code> com estado atual e lições aprendidas, e <code>decisions/GLOBAL_DECISIONS.md</code>.</div></div>
+      <div class="dg rv"><svg viewBox="0 0 700 255" role="img" aria-label="As camadas compartilhadas por todos os projetos"><rect class="h" x="120" y="10" width="460" height="90" rx="14"/><text x="350" y="42" text-anchor="middle">Camadas comuns</text><text class="s" x="350" y="66" text-anchor="middle">rules · skills · knowledge</text><text class="s" x="350" y="84" text-anchor="middle">memória global · decisões globais</text><path class="fl" d="M350 100 L130 160"/><rect class="b" x="40" y="160" width="180" height="80" rx="12"/><text x="130" y="192" text-anchor="middle">Projeto A</text><text class="s" x="130" y="214" text-anchor="middle">contratos próprios</text><text class="s" x="130" y="231" text-anchor="middle">memória própria</text><path class="fl" d="M350 100 L350 160"/><rect class="b" x="260" y="160" width="180" height="80" rx="12"/><text x="350" y="192" text-anchor="middle">Projeto B</text><text class="s" x="350" y="214" text-anchor="middle">contratos próprios</text><text class="s" x="350" y="231" text-anchor="middle">memória própria</text><path class="fl" d="M350 100 L570 160"/><rect class="b" x="480" y="160" width="180" height="80" rx="12"/><text x="570" y="192" text-anchor="middle">Projeto C</text><text class="s" x="570" y="214" text-anchor="middle">contratos próprios</text><text class="s" x="570" y="231" text-anchor="middle">memória própria</text></svg></div>
+      <h2 class="rv"><span class="n">02 · O QUE É DE CADA UM</span>Cada projeto tem a sua pasta de contratos</h2>
+      <div class="code rv"><span class="adr-line" style="--i:0">projects/&lt;nome&gt;/</span><span class="adr-line" style="--i:1">├── PROJECT.md          # visão e escopo</span><span class="adr-line" style="--i:2">├── ARCHITECTURE.md     # arquitetura formalizada</span><span class="adr-line" style="--i:3">├── CURRENT_STATE.md    # onde o projeto está hoje</span><span class="adr-line" style="--i:4">├── DECISIONS/          # ADRs do projeto</span><span class="adr-line" style="--i:5">├── BACKUPS/            # exportações em Markdown e JSON</span><span class="adr-line" style="--i:6">└── RESEARCH/           # laboratórios de pesquisa</span></div>
+      <p class="rv">A memória fica em dois níveis: a do framework, comum a todos, e a de cada projeto, em <code>projects/&lt;nome&gt;/</code>. Assim o contexto de um cliente não vaza para o de outro.</p>
+      <h2 class="rv"><span class="n">03 · UM PROJETO NOVO</span>Entra no cérebro em poucos minutos</h2>
+      <p class="rv">Você pode criar o projeto do zero, com <code>git init</code> automático, ou vincular um repositório que já existe por junção NTFS ou symlink, sem duplicar arquivos. A skill <code>project-onboarding</code> cria a estrutura padronizada e os contratos iniciais (PROJECT, ARCH, STATE e ADR-0001), que você revisa antes de gravar.</p>
+      <div class="adr-flow rv"><span class="chip" style="--i:0">Criar ou vincular o repositório</span><span class="ar">→</span><span class="chip" style="--i:1">Sabatina sobre a stack</span><span class="ar">→</span><span class="chip" style="--i:2">Contratos preenchidos</span><span class="ar">→</span><span class="chip" style="--i:3">Projeto herda regras e skills comuns</span></div>
+      <h2 class="rv"><span class="n">04 · A ROTINA</span>Alternar entre projetos sem perder o fio</h2>
+      <p class="rv">A cada troca de projeto, você diz ao agente em qual vai trabalhar e pede o contexto atual. Ele lê o <code>PROJECT.md</code>, o <code>CURRENT_STATE.md</code>, as decisões e as memórias anteriores, e devolve um resumo. No fim, a skill <code>session-memory</code> registra a sessão. Os dois checklists do projeto:</p>
+      <div class="grid"><div class="card rv"><b>Início da tarefa</b><ul class="ck"><li>Ler o <code>PROJECT.md</code> e o <code>CURRENT_STATE.md</code> do projeto.</li><li>Verificar as regras em <code>.agents/rules/</code>.</li><li>Classificar a tarefa antes de agir.</li></ul></div><div class="card rv"><b>Encerramento da sessão</b><ul class="ck"><li>Testar as alterações.</li><li>Atualizar o <code>CURRENT_STATE.md</code> do projeto.</li><li>Atualizar a memória persistente global.</li><li>Registrar decisões em <code>DECISIONS/</code>.</li></ul></div></div>
+      <h2 class="rv"><span class="n">05 · GLOBAL OU LOCAL</span>Onde cada decisão e cada lição deve morar</h2>
+      <p class="rv">As lições registradas na memória global ficam disponíveis para as próximas sessões, e as decisões que valem para todos os projetos vão para <code>GLOBAL_DECISIONS.md</code>. As que valem só para um vão para o <code>DECISIONS/</code> do projeto.</p>
+      <p class="rv">Um teste que eu uso, e que não é regra do projeto: se a decisão continuaria valendo caso você trocasse de projeto amanhã, ela é global. Se não, é local. Para ver todos os projetos de uma vez, o portal tem um dashboard com o status de governança e um grafo 3D em que cada projeto é uma estrela com seus arquivos orbitando.</p>
+      <h2 class="rv"><span class="n">06 · LIMITES HONESTOS</span>O preço de ter um cérebro só</h2>
+      <div class="grid"><div class="card rv"><b>Uma regra errada afeta todos</b><br>Mudar uma regra global muda o comportamento de todos os projetos. Registre a mudança como ADR.</div><div class="card rv"><b>Regra demais engessa</b><br>Projetos com necessidades diferentes podem sofrer com padrões globais rígidos. Mantenha o comum enxuto.</div><div class="card rv"><b>Exige disciplina</b><br>Os checklists de início e de encerramento só funcionam se forem feitos, em todos os projetos.</div></div>
+      <div class="stats rv"><div><b data-n="4">0</b>camadas comuns</div><div><b data-n="6">0</b>itens por projeto</div><div><b data-n="2">0</b>níveis de memória</div></div>
+      <blockquote class="rv"><strong>O que é comum vira padrão. O que é de cada um continua sendo de cada um.</strong></blockquote>
+
+    </div>
+    <section class="article-bio-card">
+      <div class="creator-avatar"><img src="https://github.com/alfredorcamara.png" alt="Alfredo R. Câmara" loading="lazy" onerror="this.style.display='none'"><div class="creator-avatar-fallback">AC</div></div>
+      <div class="bio-content"><h4>Alfredo R. Câmara</h4><p class="author-bio" data-author-bio>Mais de 28 anos de experiência em desenvolvimento, arquitetura de software e integração de sistemas. Criador do <strong>AI Second Brain</strong>, projeto open source que explora novas formas de organizar conhecimento e contexto para apoiar o desenvolvimento com IA.</p>
+        <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Ver projetos no GitHub ↗</a><span style="margin: 0 8px; color: var(--line);">·</span><a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </section>
+    <nav class="article-navigation" aria-label="Outros artigos">
+      <a href="hub-central-ou-cursorrules-por-repositorio.html" class="nav-link-card"><span class="nav-link-label">← Artigo Anterior</span><span class="nav-link-title">Hub central ou .cursorrules em cada repositório? O debate de quem tem mais de um projeto</span></a>
+      <a href="adrs-para-agentes-de-ia.html" class="nav-link-card" style="text-align: right;"><span class="nav-link-label">Veja Também →</span><span class="nav-link-title">ADRs para agentes: como impedir que a IA desfaça decisões que você já tomou</span></a>
+    </nav>
+    <section class="article-cta-box rv">
+      <img class="cta-logo" src="../../assets/ai-second-brain-logo-animado.svg" alt="AI Second Brain" width="210" height="115">
+      <h3 class="cta-title">Teste agora, sem instalar nada</h3>
+      <p class="cta-desc">A demo roda o dashboard real com um vault de exemplo, em modo somente leitura: explore o grafo 3D e pressione Ctrl+K.</p>
+      <div class="cta-actions"><a href="../../demo/index.html" target="_blank" rel="noopener" class="btn btn-primary">🌐 Abrir Demo 3D ao Vivo</a><a href="https://github.com/alfredorcamara/ai-second-brain" target="_blank" rel="noopener" class="btn btn-secondary">⭐ Ver no GitHub</a></div>
+      <div class="cta-au">Criado e mantido com paixão por <strong>Alfredo R. Câmara</strong> (<a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">@alfredorcamara</a> · <a href="https://www.linkedin.com/in/alfredo-rodrigues-c%C3%A2mara-0a564162/" target="_blank" rel="noopener">LinkedIn</a>)<br><em>Transformando agentes de IA em engenheiros de software sêniores com memória viva e governança contínua.</em></div>
+    </section>
+    <p class="tags">#InteligenciaArtificial #AgentesDeIA #EngenhariaDeSoftware #Arquitetura #Governanca #DevTools #Cursor #ClaudeCode</p>
+  </article></main>
+  <footer>
+    <div class="footer-links">
+      <a href="../../index.html">Início</a><a href="index.html">Blog</a><a href="../../demo/index.html" target="_blank" rel="noopener">Demo 3D</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/alfredorcamara/ai-second-brain/discussions" target="_blank" rel="noopener">Discussões</a>
+      <a href="../../index.html#faq">FAQ</a><a href="https://github.com/alfredorcamara" target="_blank" rel="noopener">Criador: Alfredo R. Câmara</a>
+    </div>
+    <div class="footer-content"><span>AI Second Brain — O Sistema Operacional de Memória para Agentes de IA</span><span class="footer-sep">·</span><span>Criado por <a href="https://github.com/alfredorcamara" target="_blank" rel="noopener" class="footer-author">Alfredo R. Câmara</a></span><span class="footer-sep">·</span><span>Código Aberto sob Licença FSL-1.1-MIT</span></div>
+  </footer>
+  <script src="../../js/i18n.dict.js"></script>
+  <script src="../../js/i18n.js"></script>
+  <script src="../author.js"></script>
+  <script>
+    (function () {
+      // 1. Partículas no Topo
+      var cv = document.getElementById('cv');
+      if (cv) {
+        var c = cv.getContext('2d'), N = [], W, H;
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function rs() {
+          W = cv.width = cv.offsetWidth;
+          H = cv.height = cv.offsetHeight;
+        }
+        rs();
+        window.addEventListener('resize', rs);
+
+        for (var i = 0; i < 46; i++) {
+          N.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            p: Math.random() * 6
+          });
+        }
+
+        function d(t) {
+          c.clearRect(0, 0, W, H);
+          for (var i = 0; i < N.length; i++) {
+            var a = N[i];
+            if (!rm) {
+              a.x += a.vx;
+              a.y += a.vy;
+              if (a.x < 0 || a.x > W) a.vx *= -1;
+              if (a.y < 0 || a.y > H) a.vy *= -1;
+            }
+            for (var j = i + 1; j < N.length; j++) {
+              var b = N[j], dx = a.x - b.x, dy = a.y - b.y, L = Math.sqrt(dx * dx + dy * dy);
+              if (L < 130) {
+                c.strokeStyle = 'rgba(90,169,255,' + (0.35 * (1 - L / 130)) + ')';
+                c.beginPath();
+                c.moveTo(a.x, a.y);
+                c.lineTo(b.x, b.y);
+                c.stroke();
+              }
+            }
+          }
+          for (var k = 0; k < N.length; k++) {
+            var n = N[k], g = 0.5 + 0.5 * Math.sin(t / 700 + n.p);
+            c.fillStyle = k % 5 ? 'rgba(120,190,255,' + (0.5 + 0.4 * g) + ')' : 'rgba(232,184,75,' + (0.6 + 0.4 * g) + ')';
+            c.beginPath();
+            c.arc(n.x, n.y, k % 5 ? 2.2 : 3.6 + g * 1.5, 0, 7);
+            c.fill();
+          }
+          if (!rm) requestAnimationFrame(d);
+        }
+        requestAnimationFrame(d);
+      }
+
+      // 2. Scroll Reveal & Contadores
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('[data-n]').forEach(cnt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.rv').forEach(function (el) {
+        io.observe(el);
+      });
+
+      function cnt(el) {
+        var target = +el.dataset.n;
+        var suffix = el.dataset.s || '';
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / 1200, 1);
+          el.textContent = Math.round(target * progress) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 3. Botão de Copiar Artigo
+      var btn = document.getElementById('cp');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var art = document.getElementById('art');
+          if (!art) return;
+          var text = art.innerText;
+          function ok() {
+            btn.textContent = '✓ Texto copiado!';
+            setTimeout(function () {
+              btn.textContent = '📋 Copiar texto do artigo';
+            }, 3000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(function () {
+              fallbackCopy(text, ok);
+            });
+          } else {
+            fallbackCopy(text, ok);
+          }
+        });
+      }
+
+      function fallbackCopy(text, cb) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          cb();
+        } catch (err) {
+          alert('Não foi possível copiar automaticamente. Selecione e copie manualmente.');
+        }
+        document.body.removeChild(ta);
+      }
+    })();
+  </script>
+</body>
+</html>
