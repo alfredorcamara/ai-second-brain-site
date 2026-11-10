@@ -101,11 +101,35 @@
         inlineVideo = $('#inline-video-player'),
         inlineExpand = $('#inline-video-expand');
 
-    const getAdaptiveSrc = () => window.innerWidth <= 768 ? 'assets/video/Reels-9x16.mp4' : 'assets/video/Promo-16x9.mp4';
+    const getCurrentLang = () => {
+        if (window.I18N && window.I18N.lang) return window.I18N.lang;
+        const docLang = (document.documentElement.lang || 'pt').toLowerCase();
+        return docLang.startsWith('en') ? 'en' : 'pt';
+    };
+
+    const getAdaptiveSrc = () => {
+        const lang = getCurrentLang();
+        if (window.innerWidth <= 768) {
+            return `assets/video/ai-second-brain-overview-9x16-${lang}.mp4`;
+        }
+        return `assets/video/ai-second-brain-overview-16x9-${lang}.mp4`;
+    };
+
+    const getAdaptivePoster = () => {
+        const lang = getCurrentLang();
+        if (window.innerWidth <= 768) {
+            return `assets/video/ai-second-brain-overview-9x16-${lang}.webp`;
+        }
+        return `assets/video/ai-second-brain-overview-16x9-${lang}.webp`;
+    };
 
     const syncVideoSource = (videoEl) => {
         if (!videoEl) return;
         const target = getAdaptiveSrc();
+        const posterTarget = getAdaptivePoster();
+        if (videoEl.getAttribute('poster') !== posterTarget) {
+            videoEl.setAttribute('poster', posterTarget);
+        }
         const cur = videoEl.currentSrc || videoEl.src || '';
         if (!cur.endsWith(target)) {
             const time = videoEl.currentTime || 0;
@@ -114,6 +138,66 @@
             if (time > 0) videoEl.currentTime = time;
         }
     };
+
+    const updateOverviewVideoLanguage = (lang) => {
+        const activeLang = lang === 'en' ? 'en' : 'pt';
+        const targetVideo16x9 = `assets/video/ai-second-brain-overview-16x9-${activeLang}.mp4`;
+        const targetVideo9x16 = `assets/video/ai-second-brain-overview-9x16-${activeLang}.mp4`;
+        const targetPoster16x9 = `assets/video/ai-second-brain-overview-16x9-${activeLang}.webp`;
+        const targetPoster9x16 = `assets/video/ai-second-brain-overview-9x16-${activeLang}.webp`;
+        const targetPoster = window.innerWidth <= 768 ? targetPoster9x16 : targetPoster16x9;
+        const targetActiveSrc = window.innerWidth <= 768 ? targetVideo9x16 : targetVideo16x9;
+
+        [inlineVideo, modalVideo].forEach(v => {
+            if (!v) return;
+            v.setAttribute('poster', targetPoster);
+            v.querySelectorAll('source').forEach(s => {
+                const media = s.getAttribute('media') || '';
+                if (media.includes('max-width')) {
+                    s.setAttribute('src', targetVideo9x16);
+                } else if (media.includes('min-width') || !media) {
+                    s.setAttribute('src', targetVideo16x9);
+                }
+            });
+            const cur = v.currentSrc || v.src || '';
+            if (!cur.endsWith(targetActiveSrc)) {
+                const time = v.currentTime || 0;
+                const isPlaying = !v.paused;
+                v.src = targetActiveSrc;
+                v.load();
+                if (time > 0) v.currentTime = time;
+                if (isPlaying) v.play().catch(() => {});
+            }
+        });
+    };
+
+    const updateCardVideoButtonsLanguage = (lang) => {
+        const activeLang = lang === 'en' ? 'en' : 'pt';
+        const btnMemoria = $('#btn-memoria-persistente-video-9x16');
+        if (btnMemoria) {
+            btnMemoria.dataset.videoSrc = `assets/video/memoria-persistente-9x16-${activeLang}.mp4`;
+        }
+        const btnPergunte = $('#btn-pergunte-cerebro-video-9x16');
+        if (btnPergunte) {
+            btnPergunte.dataset.videoSrc = `assets/video/nao-e-um-jogo-30s-9x16-${activeLang}.mp4`;
+            btnPergunte.dataset.videoPoster = `assets/video/nao-e-um-jogo-30s-9x16-${activeLang}.webp`;
+        }
+        const promo9x16Player = $('#promo-video-9x16-player');
+        if (promo9x16Player && !promo9x16Player.getAttribute('src')) {
+            promo9x16Player.setAttribute('poster', `assets/video/nao-e-um-jogo-30s-9x16-${activeLang}.webp`);
+        }
+    };
+
+    window.addEventListener('langchange', e => {
+        const lang = e && e.detail ? e.detail : getCurrentLang();
+        updateOverviewVideoLanguage(lang);
+        updateCardVideoButtonsLanguage(lang);
+    });
+
+    if (getCurrentLang() === 'en') {
+        updateOverviewVideoLanguage('en');
+        updateCardVideoButtonsLanguage('en');
+    }
 
     let videoModalTrigger = null;
 
@@ -295,8 +379,14 @@
 
     $$('.card-video-9x16-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const src = btn.dataset.videoSrc || 'assets/video/pergunte-cerebro-card-promo-9x16.mp4';
-            const poster = btn.dataset.videoPoster || 'assets/video/pergunte-cerebro-promo-poster.jpg';
+            const lang = getCurrentLang();
+            const isEn = lang === 'en';
+            const src = (isEn && btn.dataset.videoSrcEn)
+                ? btn.dataset.videoSrcEn
+                : (btn.dataset.videoSrcPt || btn.dataset.videoSrc || `assets/video/nao-e-um-jogo-30s-9x16-${lang}.mp4`);
+            const poster = (isEn && btn.dataset.videoPosterEn)
+                ? btn.dataset.videoPosterEn
+                : (btn.dataset.videoPosterPt || btn.dataset.videoPoster || `assets/video/nao-e-um-jogo-30s-9x16-${lang}.webp`);
             openPromo9x16(src, poster, e);
         });
     });
