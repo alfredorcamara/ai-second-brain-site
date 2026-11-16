@@ -69,6 +69,7 @@
     .article-page {
       position: relative;
       z-index: 1;
+      pointer-events: auto;
     }
 
     /* ── Destaque Visual Obrigatório no Título (#e8b84b) ── */
@@ -703,6 +704,131 @@
 .adr-line{display:block;white-space:pre-wrap;opacity:0}.code.in .adr-line{animation:adrpop .4s forwards;animation-delay:calc(var(--i)*.35s)}
 @keyframes adrpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.adr-flow .chip,.adr-line{opacity:1 !important;animation:none !important}}
+
+/* ── Bloco de Vídeo: vídeo à esquerda, texto à direita ── */
+.article-video-wrapper {
+  margin: 36px 0;
+  width: 100%;
+  pointer-events: auto !important;
+}
+.video-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: center;
+  background: #02040a;
+  border: 1px solid rgba(232, 184, 75, 0.3);
+  border-radius: 20px;
+  padding: 22px 26px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 28px rgba(232, 184, 75, 0.08);
+  box-sizing: border-box;
+  pointer-events: auto !important;
+}
+.video-frame {
+  position: relative;
+  /* ~30% menor que antes e limitado pela altura da janela: cabe inteiro na tela */
+  width: clamp(220px, calc((100svh - 230px) * 0.56), 340px);
+  aspect-ratio: 4 / 5;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: auto !important;
+}
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+  pointer-events: auto !important;
+}
+.video-frame video:fullscreen,
+.video-frame video:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  background: #000;
+}
+.video-info {
+  text-align: left;
+  font-family: var(--font-sans);
+  min-width: 0;
+}
+.video-pill {
+  display: table;
+  margin: 18px auto 0;
+  background: rgba(232, 184, 75, 0.15);
+  border: 1px solid rgba(232, 184, 75, 0.4);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+.video-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.video-caption {
+  display: block;
+  text-align: center;
+  font-size: 14.5px;
+  color: #cbd5e1;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.video-points {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.video-points li {
+  position: relative;
+  padding: 6px 0 6px 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.video-points li:last-child { border-bottom: 0; }
+.video-points li::before {
+  content: "▸";
+  position: absolute;
+  left: 4px;
+  color: var(--gold);
+  font-weight: 700;
+}
+.video-note {
+  font-size: 13px;
+  color: var(--mut);
+  margin: 0;
+}
+
+/* Mobile / tablet: texto acima, vídeo abaixo */
+@media (max-width: 820px) {
+  .video-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px 14px 18px;
+    border-radius: 16px;
+  }
+  .video-info { order: 1; }
+  .video-frame {
+    order: 2;
+    width: min(100%, 360px);
+    margin: 0 auto;
+  }
+  .video-title { font-size: 18px; }
+}
 </style>
 </head>
 <body>
@@ -733,6 +859,32 @@
     </header>
     <div class="article-action-row"><button id="cp" class="copy-article-btn" type="button">📋 Copy article text</button></div>
     <div class="article-body" id="art"><p class="rv">The project names this problem: the <b>amnesia of why</b>. Git shows <i>what</i> changed, but it does not explain why a LINQ query became Dapper three weeks earlier. Without that record, the next agent looks at the current code, finds the choice off-pattern and “cleans” it. In this article I take apart how that happens and the layers AI Second Brain uses to prevent it.</p>
+      
+      <!-- Video Block: 58s Highlights -->
+      <div class="article-video-wrapper rv">
+        <div class="video-card">
+          <div class="video-frame">
+            <video src="../../assets/video/ia-limpa-o-codigo-en.mp4" poster="../../assets/video/ia-limpa-o-codigo-en.webp" controls preload="metadata" playsinline title="When AI cleans up your code and undoes your optimization">
+              <source src="../../assets/video/ia-limpa-o-codigo-en.mp4" type="video/mp4">
+              Your browser does not support playing this video.
+            </video>
+          </div>
+          <div class="video-info">
+            <span class="video-pill">🎬 Quick Summary · 58s</span>
+            <h3 class="video-title">The cleanup that undoes the optimization</h3>
+            <span class="video-caption">See in practice how silent cleanup happens:</span>
+            <ul class="video-points">
+              <li>A deliberate optimization looks like “off-pattern code” to the next agent.</li>
+              <li>The “cleanup” passes the tests: the behavior stays the same.</li>
+              <li>Latency rises and nobody connects the two.</li>
+              <li>ADRs and context layers make the agent respect the decision.</li>
+            </ul>
+            <p class="video-note">Prefer reading? Keep scrolling: the article details each point.</p>
+          </div>
+        </div>
+      </div>
+
+
       <h2 class="rv"><span class="n">01 · THE INCIDENT</span>Anatomy of a silent cleanup</h2>
       <div class="code rv"><span class="adr-line" style="--i:0">Week 0    You swap LINQ for Dapper with stored procedures to gain performance.</span><span class="adr-line" style="--i:1">Week 1-2  The code works. The reason lives only in your head and in a chat nobody opens.</span><span class="adr-line" style="--i:2">Week 3    New session, another agent: “clean up the data layer”.</span><span class="adr-line" style="--i:3">          The agent sees hand-written queries and finds them off the modern pattern.</span><span class="adr-line" style="--i:4">          The tests pass: the behavior is the same.</span><span class="adr-line" style="--i:5">Later     Latency rises. Nobody connects the two.</span></div>
       <p class="mut" style="font-size:14px;color:var(--mut);margin-bottom:24px;">Illustrative scenario, based on the example in the project value document. The remark that the tests pass is my own reading.</p>
