@@ -114,7 +114,7 @@
         if (u.startsWith('/api/system/version')) {
             return Promise.resolve(json({
                 success: true,
-                version: '1.5.7',
+                version: '1.5.8',
                 name: 'ai-second-brain',
                 updateAvailable: false,
                 behindCommits: 0,
